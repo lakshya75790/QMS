@@ -22,7 +22,7 @@ pipeline {
         STAGING_APP_SECONDARY_PORT = '4601'
 
         // Workspace and health checks
-        BASE_DIR = '/home/ubuntu/mediscan'
+        BASE_DIR = '/home/jenkins/mediscan'
         HEALTH_APP_PATH = 'api/health'
         // Nginx conf file
         NGINX_STAGING_CONF = 'mediscan.qrblack.com.conf'
