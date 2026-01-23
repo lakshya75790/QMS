@@ -179,8 +179,8 @@ pipeline {
 
                             echo "🚀 Starting clone process for tag: \$TAG"
                             sudo mkdir -p "\$BASE_DIR"
-                           # sudo chown ubuntu:ubuntu "\$BASE_DIR"
-                            sudo chown ubuntu:ubuntu "\$BASE_DIR"
+                           # sudo chown jenkins:jenkins "\$BASE_DIR"
+                            sudo chown jenkins:jenkins "\$BASE_DIR"
                             mkdir -p "\$WORKSPACE_DIR"
                             cd "\$WORKSPACE_DIR"
 
