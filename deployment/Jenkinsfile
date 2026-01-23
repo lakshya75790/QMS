@@ -7,7 +7,7 @@ pipeline {
         AWS_ACCESS_KEY_ID = credentials('aws-access-key-id')
         AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
         AWS_ACCOUNT_ID = credentials('aws-rahul-account-id')
-        EC2_INSTANCE = credentials('aws-app-server-1-user-with-ip')
+        EC2_INSTANCE = credentials('aws-app-server-2-user-with-ip')
         ECR_REPOSITORY = 'mediscan-app'
         GITHUB_PAT = credentials('hrms-git-token')
         AWS_REGION = 'ap-south-1'
@@ -28,8 +28,7 @@ pipeline {
         NGINX_STAGING_CONF = 'mediscan.qrblack.com.conf'
         NGINX_PRODUCTION_CONF = 'mediscan.qrblack.com.conf'
         APP_NAME = 'mediscan'
-        JENKINS_EC2_APP_SERVER_TWO = 'jenkins-ssh-key'
-
+        JENKINS_EC2_APP_SERVER_TWO = 'jenkins-ssh-key-app-server-2'
         S3_ENV_BUCKET = 'secure-env-files-itsoftlab'
         MEDISCAN_PRODUCTION_ENV_S3_KEY = 'mediscan-production-env'
         MEDISCAN_STAGING_ENV_S3_KEY = 'mediscan-staging-env'
