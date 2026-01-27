@@ -179,7 +179,6 @@ pipeline {
 
                             echo "🚀 Starting clone process for tag: \$TAG"
                             sudo mkdir -p "\$BASE_DIR"
-                           # sudo chown jenkins:jenkins "\$BASE_DIR"
                             sudo chown jenkins:jenkins "\$BASE_DIR"
                             mkdir -p "\$WORKSPACE_DIR"
                             cd "\$WORKSPACE_DIR"
@@ -245,7 +244,6 @@ pipeline {
                             fi
 
                             chmod 600 "\$TARGET_DIR/app/.env"
-                            chown ubuntu:ubuntu "\$TARGET_DIR/app/.env"
                             echo "✅ .env fetched and placed at \$TARGET_DIR/app/.env"
 
                             APP_SECRET_NAME=\$S3_KEY
