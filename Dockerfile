@@ -16,7 +16,6 @@ COPY package.json pnpm-lock.yaml ./
 
 # Debugging: List files in the working directory
 RUN ls -al
-
 # Install latest Corepack and enable it
 RUN corepack prepare pnpm@10.17.1 --activate && corepack enable
 
