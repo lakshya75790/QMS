@@ -7,6 +7,7 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { Button } from "../ui/button";
 import { Menu } from "lucide-react";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 
 const Navbar = () => {
   const { toggleSidebar } = useSidebar();
@@ -14,13 +15,20 @@ const Navbar = () => {
   const pathName = usePathname()
 
   return (
-    <nav className="flex items-center justify-between border-b px-2 py-4 md:px-4 lg:px-6">
+    <nav className="flex items-center justify-between border-b px-2 py-4 md:px-4 lg:px-6 bg-black">
       <Suspense>
-        <LogoButton />
+         <Image
+                    alt={"qrcode"}
+                    src={"/white-wings.png"}
+                    width={150}
+                    height={90}
+                    className="bg-transparent rounded-xl"
+                  />
+        {/* <LogoButton /> */}
       </Suspense>
       <div className="flex items-center gap-2">
         {user?.role !== "USER" && pathName?.includes("admin") && (
-          <Button onClick={toggleSidebar} size="sm" variant={"ghost"}>
+          <Button onClick={toggleSidebar} size="sm" variant={"ghost"} className="text-white">
             <Menu />
           </Button>
         )}
