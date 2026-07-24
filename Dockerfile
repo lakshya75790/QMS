@@ -18,7 +18,7 @@ COPY package.json pnpm-lock.yaml ./
 RUN ls -al
 
 # Install latest Corepack and enable it
-RUN npm install -g corepack@latest && corepack enable
+RUN corepack prepare pnpm@10.17.1 --activate && corepack enable
 
 # Debugging: Check Corepack installation
 RUN corepack --version
