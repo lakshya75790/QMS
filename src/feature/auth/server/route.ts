@@ -152,18 +152,18 @@ export const authRoute = new Hono()
           await signIn("credentials", {
             name: user.name,
             phone: user.phone,
-            role: users.role,
+            role: user.role,
             redirect: false,
           });
 
-          let redirect = "/";
+          let redirect = "/history";
           if (user.role === "SUPER_ADMIN") {
             redirect = "/admin/dashboard/organization";
           } else if (user.role !== "USER") {
             // Only query the database if the user is not a regular USER
             const userOrg = await getOrgByUserId(user.id);
             if (!userOrg) {
-              redirect = "/";
+              redirect = "/admin/dashboard/organization";
             } else if (user.role === "ADMIN") {
               redirect = `/admin/dashboard/organization/o/${userOrg.webName}`;
             } else {

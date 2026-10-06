@@ -13,14 +13,13 @@ export const useSearchToken = (query: RequestType["query"] = {}) => {
   return useQuery({
     queryKey: [
       "appointments",
-      {
-        page: query.page || undefined,
-        limit: query.limit || undefined,
-        search: query.search || undefined,
-        startTime: query.startTime || undefined,
-        endOfDay: query.endOfDay || undefined,
-        appointmentStatus: query.appointmentStatus || undefined,
-      },
+      webName || "",
+      query.page || "1",
+      query.limit || "15",
+      query.search || "",
+      query.startTime || "",
+      query.endOfDay || "",
+      query.appointmentStatus || "Scheduled",
     ],
     queryFn: async () => {
       const res = await api({
@@ -33,6 +32,7 @@ export const useSearchToken = (query: RequestType["query"] = {}) => {
       }
       return data;
     },
+    staleTime: 15000,
     refetchInterval: 10000, //10 sec
     placeholderData: keepPreviousData,
   });

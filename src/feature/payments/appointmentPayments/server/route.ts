@@ -26,6 +26,7 @@ import {
   desc,
   eq,
   gte,
+  ilike,
   lte,
   or,
   sql,
@@ -260,13 +261,21 @@ const appointmentPaymentRoutes = new Hono()
   .get("/view/a/:appointmentId", async (c) => {
     const appointmentId = c.req.param("appointmentId");
 
-    // Step 1: Get the paymentId from the appointment
+    // Step 1: Get the paymentId from the appointment (prioritize COMPLETED, then latest created)
     const link = await db
       .select({
         paymentId: appointmentPaymentLinks.paymentId,
       })
       .from(appointmentPaymentLinks)
+      .innerJoin(
+        appointmentPayments,
+        eq(appointmentPayments.id, appointmentPaymentLinks.paymentId),
+      )
       .where(eq(appointmentPaymentLinks.appointmentId, appointmentId))
+      .orderBy(
+        sql`CASE WHEN ${appointmentPayments.paymentStatus} = 'COMPLETED' THEN 1 ELSE 2 END`,
+        desc(appointmentPayments.createdAt),
+      )
       .limit(1);
 
     if (!link.length) {
@@ -412,7 +421,11 @@ const appointmentPaymentRoutes = new Hono()
     "/o/:doctorWebName",
     zValidator("query", appointmentPaginationSchema),
     async (c) => {
-      const doctorWebName = c.req.param("doctorWebName");
+      const rawDoctorWebName = c.req.param("doctorWebName");
+      if (!rawDoctorWebName || rawDoctorWebName === "undefined" || rawDoctorWebName === "null") {
+        return c.json({ data: [], pagination: { total: 0, page: 1, limit: tableLimitArr[0] } });
+      }
+      const doctorWebName = decodeURIComponent(rawDoctorWebName).toLowerCase().trim();
       const {
         limit = tableLimitArr[0],
         page = 1,
@@ -461,7 +474,7 @@ const appointmentPaymentRoutes = new Hono()
           .$dynamic();
 
         // Build WHERE filters
-        const filters = [eq(organizations.doctorWebName, doctorWebName)];
+        const filters = [ilike(organizations.doctorWebName, doctorWebName)];
 
         if (search) {
           filters.push(
@@ -533,7 +546,11 @@ const appointmentPaymentRoutes = new Hono()
       try {
         // 1. Path and validated query
         const user = await currentUser();
-        const doctorWebName = c.req.param("doctorWebName");
+        const rawDoctorWebName = c.req.param("doctorWebName");
+        if (!rawDoctorWebName || rawDoctorWebName === "undefined" || rawDoctorWebName === "null") {
+          return c.json({ error: "Invalid organization web name" }, 400);
+        }
+        const doctorWebName = decodeURIComponent(rawDoctorWebName).toLowerCase().trim();
         const {
           startDate: validStartDate,
           endDate: validEndDate,
@@ -550,7 +567,7 @@ const appointmentPaymentRoutes = new Hono()
         const [org] = await db
           .select({ id: organizations.id })
           .from(organizations)
-          .where(eq(organizations.doctorWebName, doctorWebName));
+          .where(ilike(organizations.doctorWebName, doctorWebName));
 
         if (!org) {
           return c.json({ error: "Organization not found" }, 404);

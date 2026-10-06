@@ -7,12 +7,25 @@ import {
 } from "@/components/ui/tooltip";
 import { Children } from "@/types";
 
-const Tooltip = ({ children, content }: Children & { content: string }) => {
+interface TooltipProps extends Children {
+  content: string;
+  side?: "top" | "bottom" | "left" | "right";
+  sideOffset?: number;
+}
+
+const Tooltip = ({
+  children,
+  content,
+  side = "top",
+  sideOffset = 6,
+}: TooltipProps) => {
   return (
-    <TooltipProvider delayDuration={0}>
+    <TooltipProvider delayDuration={100}>
       <TooltipWrapper>
         <TooltipTrigger asChild>{children}</TooltipTrigger>
-        <TooltipContent>{content}</TooltipContent>
+        <TooltipContent side={side} sideOffset={sideOffset}>
+          {content}
+        </TooltipContent>
       </TooltipWrapper>
     </TooltipProvider>
   );

@@ -4,7 +4,7 @@ import React, { useEffect } from "react";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { AlertCircle, Clock } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { differenceInDays, isBefore } from "date-fns";
+import { endOfDay, isBefore } from "date-fns";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 const SubscriptionPopupAlert = () => {
@@ -12,30 +12,33 @@ const SubscriptionPopupAlert = () => {
   const user = useCurrentUser();
   const router = useRouter();
 
-  // Calculate days remaining in subscription
-  const daysRemaining = data?.serviceEndDate
-    ? differenceInDays(new Date(data.serviceEndDate), new Date())
+  const endDate = data?.serviceEndDate ? new Date(data.serviceEndDate) : null;
+  const now = new Date();
+  const isValidDate = endDate instanceof Date && !isNaN(endDate.getTime());
+  const subscriptionEnd = isValidDate ? endOfDay(endDate) : null;
+  const isExpired = subscriptionEnd ? isBefore(subscriptionEnd, now) : false;
+
+  // Calculate days remaining (only meaningful if subscription has not ended)
+  const daysRemaining = isValidDate
+    ? Math.max(0, Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)))
     : 0;
 
-  // Navigate to another page if subscription has ended
+  // Navigate to another page if subscription has ended (only for clinic roles, never for SUPER_ADMIN or USER)
   useEffect(() => {
-    if (
-      data &&
-      isBefore(new Date(data.serviceEndDate), new Date()) &&
-      user?.role !== "SUPER_ADMIN"
-    ) {
+    if (data && isExpired && user?.role !== "SUPER_ADMIN" && user?.role !== "USER") {
       router.push("/subscription/renew");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, user]);
+  }, [data, isExpired, user]);
 
-  if (isLoading || !data) return null;
+  if (isLoading || !data || !isValidDate) return null;
 
-  // Don't show anything if days remaining is more than 15
-  if (daysRemaining > 15) return null;
+  // If subscription is still active
+  if (!isExpired) {
+    // Don't show anything if more than 15 days remaining
+    if (daysRemaining > 15) return null;
 
-  // Show warning alert when subscription is about to end (within 15 days)
-  if (daysRemaining > 0) {
+    // Show warning alert when subscription is about to end (within 15 days)
     return (
       <Alert
         variant="destructive"
@@ -61,7 +64,7 @@ const SubscriptionPopupAlert = () => {
       <AlertTitle>Subscription Expired</AlertTitle>
       <AlertDescription>
         Your subscription has ended.{" "}
-        {user?.role !== "SUPER_ADMIN" &&
+        {user?.role !== "SUPER_ADMIN" && user?.role !== "USER" &&
           "You're being redirected to the renewal page."}
       </AlertDescription>
     </Alert>
@@ -69,3 +72,4 @@ const SubscriptionPopupAlert = () => {
 };
 
 export default SubscriptionPopupAlert;
+

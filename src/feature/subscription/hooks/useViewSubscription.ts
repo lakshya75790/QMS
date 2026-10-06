@@ -1,17 +1,20 @@
 import useWebName from "@/hooks/useWebName";
+import useGetUserOrg from "@/feature/organization/hooks/useGetUserOrg";
 import { client } from "@/lib/rpc";
 import { useQuery } from "@tanstack/react-query";
-// import { InferResponseType } from "hono";
 
 const api = client.api.main.org.subscription[":webName"].$get;
-// type ResponseType = InferResponseType<typeof api, 200>;
+
 const useViewSubscription = () => {
   const { webName } = useWebName();
+  const { data: userOrg } = useGetUserOrg();
+  const targetWebName = webName || userOrg?.organizations?.webName;
+
   return useQuery({
-    queryKey: ["subscription", webName],
+    queryKey: ["subscription", targetWebName],
     queryFn: async () => {
       const res = await api({
-        param: { webName },
+        param: { webName: targetWebName! },
       });
       if (!res.ok) {
         throw res;
@@ -19,8 +22,9 @@ const useViewSubscription = () => {
       const data = await res.json();
       return data;
     },
-    enabled: !!webName,
+    enabled: !!targetWebName,
   });
 };
 
 export default useViewSubscription;
+

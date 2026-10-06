@@ -232,6 +232,11 @@ export async function getReadableErrorMessage(error: unknown): Promise<string> {
     return error.message;
   }
 
+  // Handle string errors
+  if (typeof error === "string") {
+    return error;
+  }
+
   // Handle unexpected error formats
   if (
     typeof error === "object" &&
@@ -240,6 +245,15 @@ export async function getReadableErrorMessage(error: unknown): Promise<string> {
     typeof (error as { error?: unknown }).error === "string"
   ) {
     return (error as { error?: string })?.error || "An unknown error occurred.";
+  }
+
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error &&
+    typeof (error as { message?: unknown }).message === "string"
+  ) {
+    return (error as { message?: string })?.message || "An unknown error occurred.";
   }
 
   return "An unknown error occurred. Please try again.";

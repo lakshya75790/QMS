@@ -118,7 +118,7 @@ const ClientComponent = ({
         {children}
 
         <div
-          className="flex flex-col justify-center gap-4 sm:flex-row"
+          className="flex flex-col justify-center gap-4 sm:flex-row print:hidden"
           data-buttons
         >
           <Button

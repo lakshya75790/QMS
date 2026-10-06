@@ -1,7 +1,7 @@
 import { currentUser } from "@/action/currentUser";
 import { db } from "@/lib/db/db";
 import { appointments } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
 
 export const userRoutes = new Hono().get("/history", async (c) => {
@@ -23,11 +23,17 @@ export const userRoutes = new Hono().get("/history", async (c) => {
       patientName: appointments.patientName,
       reasonForVisit: appointments.reasonForVisit,
       tokenNumber: appointments.tokenNumber,
+      appointmentStatus: appointments.appointmentStatus,
       image: appointments.image,
       revisitTime: appointments.revisitTime,
     })
     .from(appointments)
-    .where(eq(appointments.userId, user.id));
+    .where(
+      and(
+        eq(appointments.userId, user.id),
+        eq(appointments.isConfirmed, true),
+      ),
+    );
 
   return c.json({
     appointments: userAppointments,

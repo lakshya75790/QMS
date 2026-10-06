@@ -3,9 +3,10 @@ import HistoryClient from "./_HistoryClient";
 
 const HistoryPage = () => {
   return (
-    <div className="container mx-auto py-6">
-      <h2 className="mb-6 text-2xl font-bold">Your Appointment History</h2>
-      <HistoryClient />
+    <div className="min-h-screen bg-slate-50/60 dark:bg-slate-950/40 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl">
+        <HistoryClient />
+      </div>
     </div>
   );
 };

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import useAddEditTransactionDialog from "./useAddEditTransactionDialog";
 import {
@@ -18,6 +19,7 @@ type RequestType = InferRequestType<typeof api>;
 const useAddEditTransactionForm = () => {
   const { transactionInfo, onClose } = useAddEditTransactionDialog();
   const queryClient = useQueryClient();
+
   const getDefaultValues = (): Partial<OrgTransactionSchema> => {
     if (transactionInfo?.type === "edit") {
       return {
@@ -32,7 +34,7 @@ const useAddEditTransactionForm = () => {
       due: 0,
       paid: 0,
       total: 0,
-      orgWebName: transactionInfo?.webName,
+      orgWebName: transactionInfo?.webName || "",
     };
   };
 
@@ -41,14 +43,41 @@ const useAddEditTransactionForm = () => {
     defaultValues: getDefaultValues(),
   });
 
+  useEffect(() => {
+    if (transactionInfo) {
+      form.reset(getDefaultValues());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [transactionInfo]);
+
   const mutation = useMutation<ResponseType, Error, RequestType>({
     mutationFn: async (input) => {
       const res = await api(input);
       if (!res.ok) {
-        throw res;
+        let errorData: { error?: string } | undefined;
+        try {
+          errorData = (await res.json()) as { error?: string };
+        } catch {}
+
+        if (res.status === 401) {
+          throw new Error(
+            errorData?.error || "Your session is no longer authorized. Please sign in again.",
+          );
+        }
+
+        if (res.status === 403) {
+          throw new Error(
+            errorData?.error || "Forbidden. You do not have permission to manage transactions.",
+          );
+        }
+
+        if (errorData?.error) {
+          throw new Error(errorData.error);
+        }
+
+        throw new Error(res.statusText || `Request failed with status ${res.status}`);
       }
       const data = await res.json();
-
       return data;
     },
     onSuccess: (data) => {
@@ -56,15 +85,15 @@ const useAddEditTransactionForm = () => {
       queryClient.invalidateQueries({
         queryKey: ["transactions"],
       });
-      toast.success(data.message);
+      toast.success(data.message || "Transaction saved successfully");
       setTimeout(() => {
         onClose();
       }, 0);
     },
     onError: (err) => {
       const error = getReadableErrorMessage(err);
-      console.error(error);
-      toast.error(error);
+      console.error("Transaction mutation error:", error);
+      toast.error(error || "Failed to process transaction.");
     },
   });
 
@@ -84,10 +113,9 @@ const useAddEditTransactionForm = () => {
       });
     } else {
       console.error("Transaction info is undefined.");
-      toast.error("Transaction info is missing.");
+      toast.error("Transaction information is missing.");
     }
   };
-
 
   return {
     form,
@@ -98,3 +126,4 @@ const useAddEditTransactionForm = () => {
 };
 
 export default useAddEditTransactionForm;
+

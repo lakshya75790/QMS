@@ -18,7 +18,7 @@ const Layout = ({ children }: Children) => {
         {/* <div className="flex justify-end px-4 my-2 mr-3" >
           <SidebarTrigger className=""/>
         </div> */}
-        <div className="flex flex-1 flex-col gap-4 overflow-x-auto pt-0 sm:p-2 md:p-4">
+        <div className="flex flex-1 flex-col gap-4 max-w-full overflow-x-hidden pt-0 px-2.5 sm:px-4 md:px-6 py-2 sm:py-4">
           {children}
         </div>
       </SidebarInset>

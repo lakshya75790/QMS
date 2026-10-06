@@ -64,7 +64,7 @@ const useLogin = () => {
           // window.location.reload();
           window.location.href = data.data.redirect;
         }, 100);
-      } else {
+      } else if (data?.data?.redirect) {
         replace(data.data.redirect);
       }
     },

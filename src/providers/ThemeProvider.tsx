@@ -17,13 +17,17 @@ const AlertDialog = dynamic(() =>
 );
 
 export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        staleTime: 3600000, // 1 hour,
-      },
-    },
-  });
+  const [queryClient] = React.useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 60000, // 1 minute default stale time
+            refetchOnWindowFocus: false, // Prevent aggressive focus refetches
+          },
+        },
+      }),
+  );
 
   return (
     <NextThemesProvider

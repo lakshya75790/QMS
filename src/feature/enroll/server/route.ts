@@ -14,7 +14,7 @@ import {
   appointments,
   orgAppointmentReasonsTypes,
 } from "@/lib/db/schema"; // Assuming you have an appointments and sessions table
-import { and, desc, eq, gte, lte, or } from "drizzle-orm";
+import { and, desc, eq, gte, lte, or, sql } from "drizzle-orm";
 import { normalizePhoneNumber } from "@/lib/utils/numberUtils";
 import { currentUser } from "@/action/currentUser";
 import { formatAppointmentData } from "@/lib/utils/dataUtils";
@@ -25,6 +25,10 @@ import {
   encryptAppointmentIds,
 } from "@/lib/utils/encryptionFormatDataUtils";
 import { calculateTotalAppointmentCost } from "@/lib/utils/mathUtils";
+import {
+  createNotification,
+  notifyOrganizationStaff,
+} from "@/feature/notifications/services/notificationService";
 import { formatError } from "@/lib/utils/stringUtils";
 
 export const enrollmentRoute = new Hono()
@@ -60,7 +64,7 @@ export const enrollmentRoute = new Hono()
       const todayEnd = new Date();
       todayEnd.setHours(23, 59, 59, 999); // Set to the end of today (23:59:59.999)
 
-      // Fetch the latest appointment and get the highest token number
+      // Fetch the highest token number created today for this clinic
       const [getLastToken] = await db
         .select({ token: appointments.tokenNumber })
         .from(appointments)
@@ -71,7 +75,7 @@ export const enrollmentRoute = new Hono()
             lte(appointments.createdAt, todayEnd), // End of today
           ),
         )
-        .orderBy(desc(appointments.createdAt), desc(appointments.tokenNumber)) // Sort by createdAt and tokenNumber
+        .orderBy(desc(sql`cast(${appointments.tokenNumber} as integer)`)) // Sort strictly by highest token number
         .limit(1); // Get only the latest document with highest tokenNumber
 
       const latestTokenNumber = getLastToken ? +getLastToken.token : 0; // If no appointments, start at 0
@@ -142,6 +146,24 @@ export const enrollmentRoute = new Hono()
         });
 
       const hash = encryptAppointmentIds(result);
+
+      // Trigger fail-safe notifications
+      for (const item of formattedData) {
+        createNotification({
+          userId: user.id,
+          title: "Appointment Booked",
+          message: `Your appointment for ${item.patientName} has been scheduled. Token #${item.tokenNumber}`,
+          type: "APPOINTMENT_CREATED",
+          relatedType: "APPOINTMENT",
+        });
+      }
+
+      notifyOrganizationStaff(organization.id, {
+        title: "New Appointment",
+        message: `New appointment created for ${body.patients[0].patientName} (Token #${latestTokenNumber + 1})`,
+        type: "APPOINTMENT_CREATED",
+        relatedType: "APPOINTMENT",
+      });
 
       return c.json(
         {

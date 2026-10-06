@@ -24,7 +24,17 @@ const useViewAppointmentPayment = () => {
     param: { doctorWebName: webName },
   };
   const query = useQuery({
-    queryKey: ["appointment-payments", filter],
+    queryKey: [
+      "appointment-payments",
+      webName || "",
+      filter.query.page || "1",
+      filter.query.limit || "10",
+      filter.query.search || "",
+      filter.query.fromDate || "",
+      filter.query.toDate || "",
+      filter.query.sortBy || "createdAt",
+      filter.query.sortOrder || "desc",
+    ],
     queryFn: async () => {
       const res = await api({
         query: filter.query,
@@ -36,6 +46,7 @@ const useViewAppointmentPayment = () => {
       }
       return data;
     },
+    staleTime: 30000,
     placeholderData: keepPreviousData,
   });
 

@@ -22,15 +22,10 @@ import { formatDate } from "@/lib/utils/dateUtils";
 import { LoadingSkeleton } from "../skeleton/OrgOverviewDetailsSkeleton";
 import Link from "next/link";
 
+import { getOrgStatus } from "@/lib/utils/orgStatus";
+
 const OrgOverviewDetails = () => {
   const { data, isLoading } = useGetOrgDetailsByWebName();
-
-  // Check if service is active
-  const isServiceActive = () => {
-    if (!data?.serviceEndDate) return false;
-    const endDate = new Date(data.serviceEndDate);
-    return endDate > new Date();
-  };
 
   if (isLoading) {
     return <LoadingSkeleton />;
@@ -47,6 +42,8 @@ const OrgOverviewDetails = () => {
     );
   }
 
+  const statusInfo = getOrgStatus(data);
+
   return (
     <Card className="w-full overflow-hidden">
       <CardHeader>
@@ -57,14 +54,14 @@ const OrgOverviewDetails = () => {
               <ExternalLink />
             </Link>
           </CardTitle>
-          <CardDescription className="text-base">
+          <CardDescription className="text-base flex items-center gap-2">
             <Badge
-              variant={isServiceActive() ? "success" : "destructive"}
-              className="mr-2"
+              variant="outline"
+              className={`text-xs font-semibold ${statusInfo.badgeClass}`}
             >
-              {isServiceActive() ? "Active" : "Inactive"}
+              {statusInfo.label}
             </Badge>
-            {data.businessType}
+            <span className="capitalize">{data.businessType}</span>
           </CardDescription>
         </div>
       </CardHeader>

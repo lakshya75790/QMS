@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { and, asc, count, desc, eq, gte, like, lte } from "drizzle-orm";
+import { and, asc, count, desc, eq, gte, ilike, like, lte, or } from "drizzle-orm";
 import { db } from "@/lib/db/db";
 import { organizations, orgTransaction, users } from "@/lib/db/schema";
 import { zValidator } from "@hono/zod-validator";
@@ -456,81 +456,116 @@ export const transactionRoutes = new Hono()
   //   },
   // );
   .post("/", zValidator("json", orgTransactionSchema), async (c) => {
-    const user = await currentUser();
-    if (!user || !user.id) {
-      return c.json({ error: "Unauthorized" }, 401);
-    }
+    try {
+      const user = await currentUser();
+      if (!user || !user.id) {
+        return c.json({ error: "Unauthorized" }, 401);
+      }
 
-    const [existingUser] = await db
-      .select({ role: users.role })
-      .from(users)
-      .where(eq(users.id, user.id));
+      const [existingUser] = await db
+        .select({ role: users.role })
+        .from(users)
+        .where(eq(users.id, user.id));
 
-    if (existingUser?.role !== "SUPER_ADMIN") {
-      return c.json(
-        { error: "Forbidden. You don't have access to these resources!" },
-        403,
-      );
-    }
+      if (existingUser?.role !== "SUPER_ADMIN" && user.role !== "SUPER_ADMIN") {
+        return c.json(
+          { error: "Forbidden. You don't have access to these resources!" },
+          403,
+        );
+      }
 
-    const body = c.req.valid("json");
+      const body = c.req.valid("json");
+      const normalizedWebName = decodeURIComponent(body.orgWebName).toLowerCase().trim();
 
-    const [getOrg] = await db
-      .select({
-        id: organizations.id,
-        doctorWebName: organizations.doctorWebName,
-      })
-      .from(organizations)
-      .where(eq(organizations.doctorWebName, body.orgWebName));
+      const [getOrg] = await db
+        .select({
+          id: organizations.id,
+          doctorWebName: organizations.doctorWebName,
+        })
+        .from(organizations)
+        .where(
+          or(
+            eq(organizations.doctorWebName, body.orgWebName),
+            ilike(organizations.doctorWebName, normalizedWebName),
+          ),
+        );
 
-    if (!getOrg) {
-      return c.json(
-        {
-          error: "Organization not found",
-        },
-        404,
-      );
-    }
+      if (!getOrg) {
+        return c.json(
+          {
+            error: "Organization not found",
+          },
+          404,
+        );
+      }
 
-    if (body.transactionId) {
-      const [updateTransaction] = await db
-        .update(orgTransaction)
-        .set({
+      if (body.transactionId) {
+        const [updateTransaction] = await db
+          .update(orgTransaction)
+          .set({
+            total: String(body.total),
+            paid: String(body.paid),
+            due: String(body.due),
+            updatedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(orgTransaction.id, body.transactionId),
+              eq(orgTransaction.organizationId, getOrg.id),
+            ),
+          )
+          .returning({
+            id: orgTransaction.id,
+          });
+
+        if (!updateTransaction) {
+          const [updateById] = await db
+            .update(orgTransaction)
+            .set({
+              total: String(body.total),
+              paid: String(body.paid),
+              due: String(body.due),
+              updatedAt: new Date(),
+            })
+            .where(eq(orgTransaction.id, body.transactionId))
+            .returning({
+              id: orgTransaction.id,
+            });
+
+          return c.json({
+            message: "Transaction updated successfully",
+            transaction: updateById,
+          });
+        }
+
+        return c.json({
+          message: "Transaction updated successfully",
+          transaction: updateTransaction,
+        });
+      }
+
+      const [insertTransaction] = await db
+        .insert(orgTransaction)
+        .values({
           total: String(body.total),
           paid: String(body.paid),
           due: String(body.due),
+          organizationId: getOrg.id,
+          createdAt: new Date(),
+          updatedAt: new Date(),
         })
-        .where(
-          and(
-            eq(orgTransaction.id, body.transactionId),
-            eq(orgTransaction.organizationId, getOrg.id),
-          ),
-        )
         .returning({
           id: orgTransaction.id,
         });
 
       return c.json({
-        message: "Transaction updated successfully",
-        transaction: updateTransaction,
+        message: "Transaction created successfully",
+        transaction: insertTransaction,
       });
+    } catch (error) {
+      console.error("Error processing transaction:", error);
+      return c.json({ error: "Failed to process transaction" }, 500);
     }
-
-    const [insertTransaction] = await db
-      .insert(orgTransaction)
-      .values({
-        total: String(body.total),
-        paid: String(body.paid),
-        due: String(body.due),
-        organizationId: getOrg.id,
-      })
-      .returning({
-        id: orgTransaction.id,
-      });
-    return c.json({
-      message: "Transaction created successfully",
-      transaction: insertTransaction,
-    });
   })
 
 

@@ -7,6 +7,7 @@ type AlertDialogStore = {
   description?: string | ReactNode;
   confirmLabel: string;
   cancelLabel: string;
+  confirmVariant?: "default" | "destructive";
   isLoading: boolean;
   onConfirm: () => void;
   onCancel: () => void;
@@ -26,6 +27,7 @@ export const useAlertDialogStore = create<AlertDialogStore>((set) => ({
   description: "",
   confirmLabel: "Confirm",
   cancelLabel: "Cancel",
+  confirmVariant: "default",
   isLoading: false,
   onConfirm: () => {},
   onCancel: () => {},
@@ -38,6 +40,7 @@ export const useAlertDialogStore = create<AlertDialogStore>((set) => ({
       description: "",
       confirmLabel: "",
       cancelLabel: "",
+      confirmVariant: "default",
     }),
   setLoading: (isLoading) => set({ isLoading }),
 }));
@@ -47,6 +50,7 @@ type UseAlertDialogParams = {
   description: string | ReactNode;
   confirmLabel?: string;
   cancelLabel?: string;
+  confirmVariant?: "default" | "destructive";
 };
 
 export const useAlertDialog = () => {
@@ -58,6 +62,7 @@ export const useAlertDialog = () => {
       description,
       confirmLabel = "Confirm",
       cancelLabel = "Cancel",
+      confirmVariant = "default",
     }: UseAlertDialogParams) => {
       return new Promise<boolean>((resolve) => {
         openDialog({
@@ -65,6 +70,7 @@ export const useAlertDialog = () => {
           description,
           confirmLabel,
           cancelLabel,
+          confirmVariant,
           onConfirm: () => {
             setLoading(false);
             resolve(true);

@@ -6,6 +6,10 @@ import {
   appointments,
 } from "@/lib/db/schema";
 import { and, eq, inArray } from "drizzle-orm";
+import {
+  createNotification,
+  notifyOrganizationStaff,
+} from "@/feature/notifications/services/notificationService";
 
 type UpdateAppointmentPaymentStatusT = {
   id: string;
@@ -85,10 +89,54 @@ export const updateAppointmentPaymentStatus = async ({
         .set({ isPaid: true })
         .where(inArray(appointments.id, appointmentIds))
         .execute();
+
+      // Synchronize all payment records linked to these now-paid appointments
+      const allLinkedPayments = await tx
+        .select({ paymentId: appointmentPaymentLinks.paymentId })
+        .from(appointmentPaymentLinks)
+        .where(inArray(appointmentPaymentLinks.appointmentId, appointmentIds))
+        .execute();
+
+      const allPaymentIds = Array.from(
+        new Set(allLinkedPayments.map((p) => p.paymentId)),
+      );
+
+      if (allPaymentIds.length > 0) {
+        await tx
+          .update(appointmentPayments)
+          .set({ paymentStatus: "COMPLETED" })
+          .where(
+            and(
+              inArray(appointmentPayments.id, allPaymentIds),
+              eq(appointmentPayments.paymentStatus, "PENDING"),
+            ),
+          )
+          .execute();
+      }
     }
 
     return { success: true, message: "Payment updated successfully" };
   });
 
+  if (result.success && paymentDetails) {
+    createNotification({
+      userId: paymentDetails.userId,
+      title: "Payment Successful",
+      message: `Payment of ₹${paymentDetails.totalAmount} was processed successfully.`,
+      type: "PAYMENT_RECEIVED",
+      relatedId: paymentDetails.id,
+      relatedType: "PAYMENT",
+    });
+
+    notifyOrganizationStaff(paymentDetails.organizationId, {
+      title: "Payment Received",
+      message: `Payment of ₹${paymentDetails.totalAmount} received.`,
+      type: "PAYMENT_RECEIVED",
+      relatedId: paymentDetails.id,
+      relatedType: "PAYMENT",
+    });
+  }
+
   return result;
 };
+

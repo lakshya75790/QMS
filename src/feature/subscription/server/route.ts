@@ -1,10 +1,11 @@
 import { db } from "@/lib/db/db";
 import { organizations } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, ilike } from "drizzle-orm";
 import { Hono } from "hono";
 
 export const subscriptionRoute = new Hono().get("/:webName", async (c) => {
-  const webName = c.req.param("webName");
+  const rawWebName = c.req.param("webName");
+  const webName = decodeURIComponent(rawWebName).toLowerCase().trim();
 
   const [org] = await db
     .select({
@@ -12,7 +13,7 @@ export const subscriptionRoute = new Hono().get("/:webName", async (c) => {
       serviceEndDate: organizations.serviceEndDate,
     })
     .from(organizations)
-    .where(eq(organizations.doctorWebName, webName));
+    .where(ilike(organizations.doctorWebName, webName));
   if (!org) {
     return c.json({ error: "Organization not found" }, 404);
   }

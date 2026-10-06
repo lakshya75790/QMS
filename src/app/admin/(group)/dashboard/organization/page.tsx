@@ -13,11 +13,25 @@ const page = async () => {
     return <div>Unauthorized</div>;
   }
   return (
-    <div>
+    <div className="space-y-6 pb-8">
       <SubscriptionPopupAlert />
-      <div className="my-4 flex w-full justify-end">
-        <AddOrgButton />
+      
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-slate-200/80 dark:border-slate-800/80">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+            Organizations
+          </h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            Manage registered clinics, doctor practices, license validity, and access settings.
+          </p>
+        </div>
+        <div className="flex items-center">
+          <AddOrgButton />
+        </div>
       </div>
+
+      {/* Main Organizations List & Search */}
       <SearchAndViewOrg />
     </div>
   );

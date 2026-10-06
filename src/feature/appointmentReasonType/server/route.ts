@@ -9,12 +9,16 @@ import { formatError } from "@/lib/utils/stringUtils";
 import { getOrgByUserId } from "@/queries/orgQuery";
 import { appointmentReasonsTypeSchema } from "@/zodSchema/appointmentReasonsTypeSchema";
 import { zValidator } from "@hono/zod-validator";
-import { eq } from "drizzle-orm";
+import { eq, ilike } from "drizzle-orm";
 import { Hono } from "hono";
 
 const appointmentReasonsTypeRoutes = new Hono()
   .get("/o/:orgWebName", async (c) => {
-    const { orgWebName } = c.req.param();
+    const rawOrgWebName = c.req.param("orgWebName");
+    if (!rawOrgWebName || rawOrgWebName === "undefined" || rawOrgWebName === "null") {
+      return c.json({ appointmentReasons: [] });
+    }
+    const orgWebName = decodeURIComponent(rawOrgWebName).toLowerCase().trim();
 
     const appointmentReasons = await db
       .select({
@@ -28,7 +32,7 @@ const appointmentReasonsTypeRoutes = new Hono()
         organizations,
         eq(orgAppointmentReasonsTypes.organizationId, organizations.id),
       )
-      .where(eq(organizations.doctorWebName, orgWebName));
+      .where(ilike(organizations.doctorWebName, orgWebName));
 
     return c.json({ appointmentReasons });
   })
@@ -42,7 +46,8 @@ const appointmentReasonsTypeRoutes = new Hono()
           return c.json({ error: "Unauthorized" }, 401);
         }
 
-        const orgWebName = c.req.param("orgWebName").toLowerCase();
+        const rawOrgWebName = c.req.param("orgWebName");
+        const orgWebName = decodeURIComponent(rawOrgWebName || "").toLowerCase().trim();
         const body = c.req.valid("json");
 
         let orgId = "";
@@ -66,7 +71,7 @@ const appointmentReasonsTypeRoutes = new Hono()
 
           orgId = userOrg.orgId;
 
-          if (userOrg.webName?.toLowerCase() !== orgWebName) {
+          if (userOrg.webName?.toLowerCase().trim() !== orgWebName) {
             return c.json({ error: "Forbidden" }, 403);
           }
         }
@@ -94,7 +99,7 @@ const appointmentReasonsTypeRoutes = new Hono()
           const [org] = await db
             .select({ id: organizations.id })
             .from(organizations)
-            .where(eq(organizations.doctorWebName, orgWebName));
+            .where(ilike(organizations.doctorWebName, orgWebName));
 
           if (!org) {
             return c.json({ error: "Organization not found" }, 404);
@@ -128,7 +133,8 @@ const appointmentReasonsTypeRoutes = new Hono()
       return c.json({ error: "Unauthorized" }, 401);
     }
 
-    const orgWebName = c.req.param("orgWebName").toLowerCase();
+    const rawOrgWebName = c.req.param("orgWebName");
+    const orgWebName = decodeURIComponent(rawOrgWebName || "").toLowerCase().trim();
 
     let orgId = "";
     const [existingUser] = await db
@@ -151,7 +157,7 @@ const appointmentReasonsTypeRoutes = new Hono()
 
       orgId = userOrg.orgId;
 
-      if (userOrg.webName?.toLowerCase() !== orgWebName) {
+      if (userOrg.webName?.toLowerCase().trim() !== orgWebName) {
         return c.json({ error: "Forbidden" }, 403);
       }
     }
@@ -160,7 +166,7 @@ const appointmentReasonsTypeRoutes = new Hono()
       const [org] = await db
         .select({ id: organizations.id })
         .from(organizations)
-        .where(eq(organizations.doctorWebName, orgWebName));
+        .where(ilike(organizations.doctorWebName, orgWebName));
 
       if (!org) {
         return c.json({ error: "Organization not found" }, 404);

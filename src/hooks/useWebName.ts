@@ -3,7 +3,14 @@ import { useParams } from "next/navigation";
 
 const useWebName = () => {
   const { webName } = useParams();
-  return { webName: webName as string };
+  const decoded =
+    typeof webName === "string"
+      ? decodeURIComponent(webName).trim()
+      : Array.isArray(webName)
+        ? decodeURIComponent(webName[0]).trim()
+        : undefined;
+  return { webName: decoded as string };
 };
 
 export default useWebName;
+

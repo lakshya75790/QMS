@@ -25,6 +25,8 @@ const useGetUserOrg = () => {
 
     enabled:
       !!user?.id && user?.role !== "SUPER_ADMIN" && user?.role !== "USER",
+    staleTime: 300000, // Cache user org for 5 minutes
+    refetchOnWindowFocus: false,
   });
 };
 

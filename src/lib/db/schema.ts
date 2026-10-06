@@ -231,6 +231,31 @@ export const orgLegalInfo = pgTable("org_legal_info", {
   ...commonFields,
 });
 
+export const rescheduleStatusArr = ["PENDING", "APPROVED", "REJECTED"] as const;
+export const rescheduleStatusEnum = pgEnum("RescheduleStatus", rescheduleStatusArr);
+
+export const appointmentRescheduleRequests = pgTable(
+  "appointment_reschedule_requests",
+  {
+    ...commonFields,
+    appointmentId: text("appointment_id")
+      .notNull()
+      .references(() => appointments.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    originalDate: timestamp("original_date").notNull(),
+    requestedDate: timestamp("requested_date").notNull(),
+    reason: text("reason"),
+    status: rescheduleStatusEnum("status").notNull().default("PENDING"),
+    processedBy: text("processed_by").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    processedAt: timestamp("processed_at"),
+    rejectionReason: text("rejection_reason"),
+  },
+);
+
 export type InsertUserT = typeof users.$inferInsert;
 export type SelectUserT = typeof users.$inferSelect;
 export type UserRole = InsertUserT["role"];
@@ -246,3 +271,40 @@ export type SelectOrganizationT = typeof organizations.$inferSelect;
 
 export type InsertOrganizationUsersT = typeof organizationUsers.$inferInsert;
 export type SelectOrganizationUsersT = typeof organizationUsers.$inferSelect;
+
+export type InsertAppointmentRescheduleRequestT =
+  typeof appointmentRescheduleRequests.$inferInsert;
+export type SelectAppointmentRescheduleRequestT =
+  typeof appointmentRescheduleRequests.$inferSelect;
+export type RescheduleStatusT = (typeof rescheduleStatusArr)[number];
+
+export const notificationTypesArr = [
+  "APPOINTMENT_CREATED",
+  "APPOINTMENT_STATUS_CHANGED",
+  "RESCHEDULE_REQUESTED",
+  "RESCHEDULE_APPROVED",
+  "RESCHEDULE_REJECTED",
+  "APPOINTMENT_RESCHEDULED",
+  "PAYMENT_RECEIVED",
+  "PRESCRIPTION_ADDED",
+  "REVISIT_SCHEDULED",
+  "REMINDER",
+  "TOKEN_CALLED",
+] as const;
+
+export const notifications = pgTable("notifications", {
+  ...commonFields,
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  message: text("message").notNull(),
+  type: varchar("type", { length: 50 }).notNull().default("APPOINTMENT_CREATED"),
+  isRead: boolean("is_read").notNull().default(false),
+  relatedId: text("related_id"),
+  relatedType: text("related_type"),
+});
+
+export type InsertNotificationT = typeof notifications.$inferInsert;
+export type SelectNotificationT = typeof notifications.$inferSelect;
+export type NotificationTypeT = (typeof notificationTypesArr)[number];

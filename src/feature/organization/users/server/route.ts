@@ -12,6 +12,7 @@ import { formatError } from "@/lib/utils/stringUtils";
 import SendService from "@/service/sendService";
 import { createOrgUser } from "@/zodSchema/orgUser";
 import { zValidator } from "@hono/zod-validator";
+import { getOrgByUserId } from "@/queries/orgQuery";
 import { and, count, eq } from "drizzle-orm";
 import { Hono } from "hono";
 
@@ -339,36 +340,13 @@ export const orgUsersRoute = new Hono()
     }
 
     try {
-      // Get organization information for the user
-      const [userOrgs] = await db
-        .select({
-          orgId: organizations.id,
-          webName: organizations.doctorWebName,
-          serviceStartDate: organizations.serviceStartDate,
-          serviceEndDate: organizations.serviceEndDate,
-          userLimit: organizations.userLimit,
-          createdAt: organizations.createdAt,
-          updatedAt: organizations.updatedAt,
-        })
-        .from(organizationUsers)
-        .innerJoin(
-          organizations,
-          eq(organizationUsers.organizationId, organizations.id),
-        )
-        .where(eq(organizationUsers.userId, user.id))
-        .limit(1);
-      if (!userOrgs) {
-        return c.json(
-          { error: "User is not associated with any organization" },
-          404,
-        );
-      }
-
+      // Get organization information for the user (prioritizing active subscription)
+      const userOrgs = await getOrgByUserId(user.id);
       return c.json({ organizations: userOrgs });
     } catch (error) {
       console.error("Error fetching user organizations:", error);
       const err = formatError(error);
-      return c.json({ error: err.message }, err.statusCode);
+      return c.json({ error: err.message }, err.statusCode || 404);
     }
   })
   .get("/:doctorWebName", async (c) => {

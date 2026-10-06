@@ -1,6 +1,6 @@
 import { InferRequestType, InferResponseType } from "hono";
 import { client } from "@/lib/rpc";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { getReadableErrorMessage } from "@/lib/utils/stringUtils";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -15,6 +15,7 @@ type ResponseType = InferResponseType<typeof api, 200>;
 
 const useConfirmCashPayment = () => {
   const { refresh } = useRouter();
+  const queryClient = useQueryClient();
 
   return useMutation<ResponseType, Error, RequestType>({
     mutationFn: async (input) => {
@@ -32,6 +33,11 @@ const useConfirmCashPayment = () => {
       if ("error" in data) {
         toast.error(data.error);
       }
+      queryClient.invalidateQueries({ queryKey: ["appointment-payments"] });
+      queryClient.invalidateQueries({ queryKey: ["payment-overview"] });
+      queryClient.invalidateQueries({ queryKey: ["appointments"] });
+      queryClient.invalidateQueries({ queryKey: ["tokens"] });
+      queryClient.invalidateQueries({ queryKey: ["waiting-lobby"] });
       refresh();
     },
 

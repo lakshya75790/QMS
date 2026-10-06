@@ -1,6 +1,7 @@
 import { SUPER_ADMIN } from "@/constant";
 import { UserRole } from "@/lib/db/schema";
 import {
+  Bell,
   BuildingIcon,
   Calendar,
   Coins,
@@ -10,6 +11,7 @@ import {
   PieChart,
   Settings,
   Tv,
+  Users,
 } from "lucide-react";
 
 type SubMenu = {
@@ -60,6 +62,13 @@ export const topNavMenu: TopNavT[] = [
   },
 
   {
+    title: "Patients",
+    url: "/patients",
+    accessBy: ["ADMIN", "RECEPTIONIST"],
+    icon: Users,
+  },
+
+  {
     title: "Display",
     url: "/token/display",
     icon: Tv,
@@ -71,6 +80,13 @@ export const topNavMenu: TopNavT[] = [
     url: "/payments",
     accessBy: ["ADMIN", "RECEPTIONIST"],
     icon: Coins,
+  },
+
+  {
+    title: "Notifications",
+    url: "/notifications",
+    accessBy: ["ADMIN", "RECEPTIONIST"],
+    icon: Bell,
   },
 ] as const;
 
