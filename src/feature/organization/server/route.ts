@@ -30,6 +30,7 @@ import {
 import { Hono } from "hono";
 import { paginationSchema } from "@/zodSchema/paginationSchema";
 import { formatError } from "@/lib/utils/stringUtils";
+import { getPublicBaseUrl } from "@/lib/utils/urlUtils";
 
 const organizationRoutes = new Hono()
   .post("/", zValidator("json", createOrgSchema), async (c) => {
@@ -130,7 +131,7 @@ const organizationRoutes = new Hono()
         try {
           await SendService.sendSMS(
             phone,
-            `Your organization has been created! You can view it here: ${process.env.NEXT_PUBLIC_URL}/${org.doctorWebName}/dashboard`,
+            `Your organization has been created! You can view it here: ${getPublicBaseUrl()}/${org.doctorWebName}/dashboard`,
           );
         } catch (error) {
           console.error(error);

@@ -3,11 +3,12 @@ import Title from "@/feature/organization/components/sections/Title";
 import OrgOverviewDetails from "@/feature/organization/overview/components/section/OrgOverviewDetails";
 import QrCodeDisplay from "@/feature/organization/overview/components/section/QrCodeDisplay";
 import { PagePropsPromise } from "@/types";
+import { getAbsoluteUrl } from "@/lib/utils/urlUtils";
 import React from "react";
 
 const page = async ({ params }: PagePropsPromise) => {
   const webName = (await params).webName;
-  const enrollPath = `${process.env.NEXT_PUBLIC_URL}/o/${webName}/enroll`;
+  const enrollPath = getAbsoluteUrl(`/o/${webName}/enroll`);
 
   return (
     <div className="">

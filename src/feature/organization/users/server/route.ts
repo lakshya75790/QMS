@@ -15,6 +15,7 @@ import { zValidator } from "@hono/zod-validator";
 import { getOrgByUserId } from "@/queries/orgQuery";
 import { and, count, eq } from "drizzle-orm";
 import { Hono } from "hono";
+import { getPublicBaseUrl } from "@/lib/utils/urlUtils";
 
 export const orgUsersRoute = new Hono()
   .post("/:doctorWebName", zValidator("json", createOrgUser), async (c) => {
@@ -176,7 +177,7 @@ export const orgUsersRoute = new Hono()
         try {
           await SendService.sendSMS(
             phone,
-            `Your account has been successfully created! You can access ${doctorWebName} at ${process.env.NEXT_PUBLIC_URL}/admin/dashboard/organization/o/${orgWithUserCount.id}.`,
+            `Your account has been successfully created! You can access ${doctorWebName} at ${getPublicBaseUrl()}/admin/dashboard/organization/o/${orgWithUserCount.id}.`,
           );
         } catch (error) {
           console.error("SMS sending failed:", error);

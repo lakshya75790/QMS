@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { LinkIcon } from "lucide-react";
 import { PagePropsPromise } from "@/types";
+import { getAbsoluteUrl } from "@/lib/utils/urlUtils";
 
 export const dynamic = "force-static";
 
@@ -11,7 +12,7 @@ const page = async ({ params }: PagePropsPromise) => {
   const webName = (await params).webName;
   if (!webName) return null;
 
-  const enrollPath = `${process.env.NEXT_PUBLIC_URL}/o/${webName}/enroll`;
+  const enrollPath = getAbsoluteUrl(`/o/${webName}/enroll`);
 
   return (
     <div className="grid grid-cols-1 gap-4 p-2 md:grid-cols-2 md:p-20">

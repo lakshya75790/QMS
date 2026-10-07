@@ -8,6 +8,7 @@ import { Download, ExternalLink } from "lucide-react";
 import html2canvas from "html2canvas";
 import Link from "next/link";
 import QrVariants from "@/components/qrcode/QrVariants";
+import { getAbsoluteUrl } from "@/lib/utils/urlUtils";
 
 interface QrCodeViewProps
   extends React.DetailedHTMLProps<
@@ -26,6 +27,7 @@ const QrCodeDisplay = ({
   webName,
   title = "Scan QR Code",
 }: QrCodeViewProps) => {
+  const qrUrl = getAbsoluteUrl(value || `/o/${webName}/enroll`);
   // const scanRef = useRef<HTMLDivElement>(null);
   const queueRef = useRef<HTMLDivElement>(null);
   const [downloading, setDownloading] = useState<"scannable" | "queue" | null>(
@@ -99,7 +101,7 @@ const QrCodeDisplay = ({
       <div>
         <QrVariants
           qrRef={queueRef}
-          value={value}
+          value={qrUrl}
           variant="queue"
           webName={webName}
           title={`${title}`}
@@ -125,7 +127,7 @@ const QrCodeDisplay = ({
         </CardFooter>
         <CardFooter className="flex justify-center gap-4 pb-6">
           <Link
-            href={value}
+            href={qrUrl}
             target="_blank"
             className="flex space-x-2 text-blue-500"
           >
