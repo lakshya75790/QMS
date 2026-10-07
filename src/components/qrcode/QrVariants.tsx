@@ -22,28 +22,31 @@ const QrVariants = ({
 
   const fontSize =
     webNameLength < 25
-      ? "2xl"
+      ? "text-sm sm:text-lg md:text-2xl"
       : webNameLength <= 30
-        ? "xl"
+        ? "text-xs sm:text-base md:text-xl"
         : webNameLength <= 35
-          ? "lg"
-          : webNameLength <= 40
-            ? "base"
-            : "xs";
+          ? "text-xs sm:text-sm md:text-lg"
+          : "text-[10px] sm:text-xs md:text-base";
 
   switch (variant) {
     case "scannable":
       return (
-        <div className="qr-card max-w-lg rounded-lg bg-white">
-          <CardHeader className="bg-primary/5">
-            <CardTitle className="text-center text-primary">{title}</CardTitle>
+        <div className="qr-card w-full max-w-lg rounded-xl bg-white shadow-sm border overflow-hidden">
+          <CardHeader className="bg-primary/5 p-4 sm:p-6">
+            <CardTitle className="text-center text-primary text-base sm:text-lg md:text-xl">
+              {title}
+            </CardTitle>
           </CardHeader>
-          <CardContent className="flex justify-center p-6">
-            <div ref={qrRef} className="rounded-lg p-4 shadow-inner">
+          <CardContent className="flex justify-center p-4 sm:p-6">
+            <div
+              ref={qrRef}
+              className="rounded-lg p-2 sm:p-4 shadow-inner flex items-center justify-center w-48 h-48 sm:w-64 sm:h-64 md:w-72 md:h-72 max-w-[70vw] max-h-[70vw] bg-white"
+            >
               <QrCodeView
                 value={value}
                 size={1024}
-                className="object-contain"
+                className="w-full h-full object-contain"
                 style={{
                   width: "100%",
                   height: "100%",
@@ -56,41 +59,45 @@ const QrVariants = ({
     case "queue":
       return (
         <div
-          className={`qr-card relative flex aspect-square w-[40rem] max-w-full flex-col items-center overflow-hidden rounded-xl bg-contain bg-no-repeat px-0 pt-16 shadow-lg ${orgDetails?.orgType === "HOSPITAL" ? "bg-[url(/qr-bg.png)]" : "bg-[url(/other-qr-bg.jpg)]"} `}
+          className={`qr-card relative flex flex-col items-center justify-between w-full max-w-[40rem] aspect-square rounded-xl bg-contain bg-center bg-no-repeat px-4 sm:px-8 py-4 sm:py-8 md:py-12 shadow-lg overflow-hidden ${
+            orgDetails?.orgType === "HOSPITAL"
+              ? "bg-[url(/qr-bg.png)]"
+              : "bg-[url(/other-qr-bg.jpg)]"
+          }`}
         >
           <div
             ref={qrRef}
-            className="mb-5 w-full max-w-md text-start text-xl font-semibold text-blue-900"
+            className="w-full max-w-md text-start font-semibold text-blue-900 px-2"
           >
-            <p>Book Your appointment </p>
-            <p>
+            <p className="text-xs sm:text-base md:text-xl">Book Your appointment </p>
+            <p className="text-xs sm:text-base md:text-xl">
               with
               <span className={`mx-1 font-bold uppercase ${fontSize}`}>
                 {decodeURIComponent(webName)}
               </span>
             </p>
           </div>
-          <p className="text-lg text-primary">
+          <p className="text-[11px] sm:text-sm md:text-base text-primary text-center font-medium px-2">
             No waiting no stress just scan and relax.
           </p>
-          <div className="my-4 mr-4 max-w-full">
+          <div className="my-1 sm:my-2 md:my-3 flex items-center justify-center w-36 h-36 sm:w-52 sm:h-52 md:w-60 md:h-60 max-w-[55vw] max-h-[55vw] p-1.5 sm:p-2 bg-white rounded-lg shadow-sm">
             <QrCodeView
               value={value}
-              size={225}
-              className="object-contain"
+              size={512}
+              className="w-full h-full object-contain"
               style={{
                 width: "100%",
                 height: "100%",
               }}
             />
           </div>
-          <p className="bottom-28 max-w-64 text-center text-xl font-bold text-primary">
-            Save your energy for healing,not standing.
+          <p className="max-w-xs sm:max-w-sm text-center text-[11px] sm:text-sm md:text-base font-bold text-primary px-2">
+            Save your energy for healing, not standing.
           </p>
         </div>
       );
     default:
-      return null;  
+      return null;
   }
 };
 

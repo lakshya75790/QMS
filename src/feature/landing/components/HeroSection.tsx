@@ -43,7 +43,7 @@ export default function HeroSection() {
             </div>
 
             {/* Main Heading */}
-            <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-[3.75rem] font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.12]">
+            <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-[3.75rem] font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.15] break-words">
               Skip the Queue. <br />
               <span className="bg-gradient-to-r from-teal-600 via-cyan-600 to-blue-600 bg-clip-text text-transparent">
                 Book Your Scan Smarter.

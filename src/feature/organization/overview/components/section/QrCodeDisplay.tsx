@@ -68,37 +68,8 @@ const QrCodeDisplay = ({
   };
 
   return (
-    <div className="flex flex-col gap-8">
-      {/* <div>
-        <QrVariants
-          qrRef={scanRef}
-          value={value}
-          variant="scannable"
-          webName={webName}
-          title={`${title}`}
-        />
-        <CardFooter className="flex justify-center gap-4 pb-6">
-          <Button
-            onClick={() => handleDownload(scanRef, "scannable")}
-            disabled={downloading === "scannable"}
-            className="gap-2"
-          >
-            {downloading === "scannable" ? (
-              <>
-                <span className="mr-2 animate-spin">⏳</span>
-                Generating...
-              </>
-            ) : (
-              <>
-                <Download size={18} />
-                Download Scannable QR
-              </>
-            )}
-          </Button>
-        </CardFooter>
-      </div> */}
-
-      <div>
+    <div className="flex flex-col gap-6 w-full max-w-full items-center md:items-start">
+      <div className="w-full max-w-[40rem] flex flex-col items-center">
         <QrVariants
           qrRef={queueRef}
           value={qrUrl}
@@ -106,11 +77,11 @@ const QrCodeDisplay = ({
           webName={webName}
           title={`${title}`}
         />
-        <CardFooter className="mt-2 flex justify-center gap-4">
+        <CardFooter className="mt-4 flex flex-wrap items-center justify-center gap-3 w-full px-2">
           <Button
             onClick={() => handleDownload(queueRef, "queue")}
             disabled={downloading === "queue"}
-            className="gap-2"
+            className="gap-2 w-full sm:w-auto min-w-[160px]"
           >
             {downloading === "queue" ? (
               <>
@@ -124,14 +95,12 @@ const QrCodeDisplay = ({
               </>
             )}
           </Button>
-        </CardFooter>
-        <CardFooter className="flex justify-center gap-4 pb-6">
           <Link
             href={qrUrl}
             target="_blank"
-            className="flex space-x-2 text-blue-500"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-800 border border-blue-200 dark:border-blue-900 rounded-md bg-blue-50/50 dark:bg-blue-950/40 hover:bg-blue-100/50 dark:hover:bg-blue-900/50 transition-colors w-full sm:w-auto min-w-[140px]"
           >
-            <ExternalLink /> View Link
+            <ExternalLink size={16} /> View Link
           </Link>
         </CardFooter>
       </div>
