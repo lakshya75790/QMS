@@ -1,7 +1,7 @@
 /**
- * Resolves the public base URL dynamically:
- * 1. In browser: window.location.origin (always matches current production/local domain).
- * 2. On server: process.env.NEXT_PUBLIC_URL or process.env.RENDER_EXTERNAL_URL or fallback.
+ * Resolves the public base URL dynamically across any deployment:
+ * 1. In browser: window.location.origin (always matches the active domain on AWS, Render, or localhost).
+ * 2. On server: environment configuration variable (NEXT_PUBLIC_URL) or default localhost.
  */
 export const getPublicBaseUrl = (): string => {
   if (typeof window !== "undefined" && window.location?.origin) {
@@ -13,9 +13,6 @@ export const getPublicBaseUrl = (): string => {
   ) {
     return process.env.NEXT_PUBLIC_URL.replace(/\/$/, "");
   }
-  if (process.env.RENDER_EXTERNAL_URL) {
-    return process.env.RENDER_EXTERNAL_URL.replace(/\/$/, "");
-  }
   if (process.env.NEXT_PUBLIC_URL) {
     return process.env.NEXT_PUBLIC_URL.replace(/\/$/, "");
   }
@@ -23,9 +20,9 @@ export const getPublicBaseUrl = (): string => {
 };
 
 /**
- * Ensures a path or URL is resolved to a complete, accurate absolute URL.
- * Automatically converts relative paths and normalizes outdated localhost origins
- * to the actual active domain when running in the browser.
+ * Resolves any path or URL into a complete absolute URL:
+ * - In the browser: Always uses active window.location.origin (purely deployment-agnostic).
+ * - On the server: Uses server-side environment base URL (NEXT_PUBLIC_URL).
  */
 export const getAbsoluteUrl = (pathOrUrl: string): string => {
   if (!pathOrUrl) return "";
@@ -35,7 +32,7 @@ export const getAbsoluteUrl = (pathOrUrl: string): string => {
     try {
       if (pathOrUrl.startsWith("http://") || pathOrUrl.startsWith("https://")) {
         const parsed = new URL(pathOrUrl);
-        // If the URL has localhost/127.0.0.1 but current browser is on production/staging, swap to current origin
+        // If the URL contains localhost/127.0.0.1 but the browser is on a remote domain, use the current active origin
         if (
           (parsed.hostname === "localhost" ||
             parsed.hostname === "127.0.0.1") &&
@@ -55,17 +52,6 @@ export const getAbsoluteUrl = (pathOrUrl: string): string => {
 
   // 2. Server-side runtime
   if (pathOrUrl.startsWith("http://") || pathOrUrl.startsWith("https://")) {
-    if (
-      (pathOrUrl.includes("localhost") || pathOrUrl.includes("127.0.0.1")) &&
-      process.env.RENDER_EXTERNAL_URL
-    ) {
-      try {
-        const parsed = new URL(pathOrUrl);
-        return `${process.env.RENDER_EXTERNAL_URL.replace(/\/$/, "")}${parsed.pathname}${parsed.search}${parsed.hash}`;
-      } catch {
-        // fallback
-      }
-    }
     return pathOrUrl;
   }
 

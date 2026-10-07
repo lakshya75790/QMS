@@ -21,29 +21,21 @@ import { notificationRoutes } from "@/feature/notifications/server/route";
 
 const app = new Hono().basePath("/api/main");
 
-const isAllowedOrigin = (origin: string): boolean => {
-  if (!origin) return true;
-  if (
-    origin.startsWith("http://localhost:") ||
-    origin.startsWith("http://127.0.0.1:") ||
-    origin.endsWith(".onrender.com") ||
-    origin.endsWith(".vercel.app")
-  ) {
-    return true;
-  }
-  if (process.env.NEXT_PUBLIC_URL) {
-    const cleanPublicUrl = process.env.NEXT_PUBLIC_URL.replace(/\/$/, "");
-    if (origin === cleanPublicUrl) return true;
-  }
-  return false;
-};
+const allowedOrigins = [
+  "http://localhost:3001",
+  "http://localhost:3000",
+  "http://127.0.0.1:3001",
+  "http://127.0.0.1:3000",
+  process.env.NEXT_PUBLIC_URL,
+  process.env.NEXT_PUBLIC_URL ? process.env.NEXT_PUBLIC_URL.replace(/\/$/, "") : null,
+].filter(Boolean) as string[];
 
 app.use(
   "*",
   cors({
     origin: (origin) => {
-      if (!origin || isAllowedOrigin(origin)) {
-        return origin || "*";
+      if (!origin || allowedOrigins.includes(origin)) {
+        return origin || "http://localhost:3001";
       }
       return null;
     },
