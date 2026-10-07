@@ -12,7 +12,6 @@ import { Badge } from "@/components/ui/badge";
 import {
   Building2,
   Calendar,
-  ExternalLink,
   FileText,
   Mail,
   Phone,
@@ -20,7 +19,6 @@ import {
 } from "lucide-react";
 import { formatDate } from "@/lib/utils/dateUtils";
 import { LoadingSkeleton } from "../skeleton/OrgOverviewDetailsSkeleton";
-import Link from "next/link";
 
 import { getOrgStatus } from "@/lib/utils/orgStatus";
 
@@ -48,11 +46,8 @@ const OrgOverviewDetails = () => {
     <Card className="w-full overflow-hidden">
       <CardHeader>
         <div className="flex flex-col gap-2">
-          <CardTitle className="text-2xl font-bold flex">
+          <CardTitle className="text-2xl font-bold">
             {data.name || data.doctorWebName}
-            <Link href={`/o/${data.doctorWebName}`}  className="text-blue-500 px-2" >
-              <ExternalLink />
-            </Link>
           </CardTitle>
           <CardDescription className="text-base flex items-center gap-2">
             <Badge
