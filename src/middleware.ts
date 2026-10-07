@@ -4,14 +4,14 @@ import {
   publicGroupRoute,
   publicRoutes,
 } from "./config/routesConfig";
-import authProvidersConfig from "@/config/authProvidersConfig";
 import NextAuth from "next-auth";
 import { NextResponse } from "next/server";
 
 const { auth } = NextAuth({
   secret: process.env.AUTH_SECRET,
   trustHost: true,
-  ...authProvidersConfig,
+  session: { strategy: "jwt" },
+  providers: [],
 });
 
 export default auth((req) => {

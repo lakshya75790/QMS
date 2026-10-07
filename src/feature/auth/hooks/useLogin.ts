@@ -16,7 +16,7 @@ type RequestType = InferRequestType<typeof api>;
 
 const useLogin = () => {
   const id = "login";
-  const { replace } = useRouter();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const session = useSession();
   const form = useForm<LoginSchemaT>({
@@ -57,15 +57,13 @@ const useLogin = () => {
     },
     onSuccess: (data) => {
       if (data.stage === LoginVerificationStage.OTPVerified) {
-        session.update();
-      }
-      if (data.stage === LoginVerificationStage.OTPVerified) {
-        setTimeout(() => {
-          // window.location.reload();
-          window.location.href = data.data.redirect;
-        }, 100);
+        const targetUrl = data.data?.redirect || "/";
+        router.prefetch(targetUrl);
+        router.replace(targetUrl);
+        router.refresh();
+        session.update().catch(() => {});
       } else if (data?.data?.redirect) {
-        replace(data.data.redirect);
+        router.replace(data.data.redirect);
       }
     },
     onError: (error) => {

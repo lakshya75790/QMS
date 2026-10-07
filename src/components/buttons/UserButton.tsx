@@ -32,7 +32,8 @@ export const UserButton = () => {
   const { data } = useGetUserOrg();
 
   const onClick = async () => {
-    await signOut({ callbackUrl: "/" });
+    await signOut({ redirect: false });
+    router.replace("/");
     router.refresh();
   };
 

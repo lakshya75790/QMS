@@ -28,7 +28,7 @@ export const getOrgByUserId = async (userId: string) => {
     .limit(1);
 
   if (!userOrgs) {
-    throw new Error("Organization not found");
+    return null;
   }
 
   return userOrgs;

@@ -11,6 +11,7 @@ import {
 import DashboardSidebarNav from "./DashboardSidebarNav";
 import { Activity, LogOut } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { signOut } from "next-auth/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -20,6 +21,13 @@ export function DashboardSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
   const user = useCurrentUser();
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    await signOut({ redirect: false });
+    router.replace("/");
+    router.refresh();
+  };
 
   return (
     <Sidebar collapsible="icon" className="border-r border-slate-200/80 dark:border-slate-800/80 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md" {...props}>
@@ -66,7 +74,7 @@ export function DashboardSidebar({
 
             <button
               type="button"
-              onClick={() => signOut({ callbackUrl: "/" })}
+              onClick={handleSignOut}
               title="Sign Out"
               aria-label="Sign Out"
               className="h-7 w-7 shrink-0 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/60 flex items-center justify-center transition-colors group-data-[collapsible=icon]:hidden"

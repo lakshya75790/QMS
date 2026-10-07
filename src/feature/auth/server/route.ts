@@ -149,19 +149,29 @@ export const authRoute = new Hono()
             return c.json({ message: "Invalid OTP" }, 400);
           }
 
-          await signIn("credentials", {
-            name: user.name,
-            phone: user.phone,
-            role: user.role,
-            redirect: false,
-          });
-
           let redirect = "/history";
           if (user.role === "SUPER_ADMIN") {
+            await signIn("credentials", {
+              id: user.id,
+              name: user.name,
+              phone: user.phone,
+              role: user.role,
+              redirect: false,
+            });
             redirect = "/admin/dashboard/organization";
           } else if (user.role !== "USER") {
-            // Only query the database if the user is not a regular USER
-            const userOrg = await getOrgByUserId(user.id);
+            // Run signIn and organization lookup in parallel for fastest response
+            const [, userOrg] = await Promise.all([
+              signIn("credentials", {
+                id: user.id,
+                name: user.name,
+                phone: user.phone,
+                role: user.role,
+                redirect: false,
+              }),
+              getOrgByUserId(user.id),
+            ]);
+
             if (!userOrg) {
               redirect = "/admin/dashboard/organization";
             } else if (user.role === "ADMIN") {
@@ -169,6 +179,14 @@ export const authRoute = new Hono()
             } else {
               redirect = `/admin/dashboard/organization/o/${userOrg.webName}/token/search`;
             }
+          } else {
+            await signIn("credentials", {
+              id: user.id,
+              name: user.name,
+              phone: user.phone,
+              role: user.role,
+              redirect: false,
+            });
           }
           // Respond with success when OTP is verified
           return c.json({

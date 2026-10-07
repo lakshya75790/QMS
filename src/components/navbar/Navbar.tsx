@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useSidebar } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
@@ -29,6 +29,7 @@ const navLinks = [
 ];
 
 const Navbar = () => {
+  const router = useRouter();
   const { toggleSidebar } = useSidebar();
   const user = useCurrentUser();
   const pathname = usePathname();
@@ -143,10 +144,10 @@ const Navbar = () => {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full transition-all duration-300 ${
+      className={`sticky top-0 z-50 w-full transition-all duration-200 bg-white dark:bg-slate-950 border-b border-slate-200/80 dark:border-slate-800/80 ${
         scrolled
-          ? "bg-white/95 dark:bg-slate-950/95 backdrop-blur-md shadow-sm border-b border-slate-200/80 dark:border-slate-800/80 py-2.5"
-          : "bg-white/70 dark:bg-slate-950/70 backdrop-blur-sm border-b border-slate-200/40 dark:border-slate-800/40 py-3.5"
+          ? "shadow-sm py-2.5"
+          : "shadow-xs py-3.5"
       }`}
     >
       <div className="container mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -241,7 +242,7 @@ const Navbar = () => {
 
       {/* Mobile Menu Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-b border-slate-200 dark:border-slate-800 bg-white/98 dark:bg-slate-950/98 backdrop-blur-xl px-4 pt-3 pb-6 space-y-4 animate-in slide-in-from-top-2 duration-200">
+        <div className="md:hidden border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 pt-3 pb-6 space-y-4 shadow-xl animate-in slide-in-from-top-2 duration-200">
           <nav className="flex flex-col space-y-1">
             {navLinks.map((link) => {
               const isActive = pathname === "/" && activeSection === link.id;
@@ -300,7 +301,9 @@ const Navbar = () => {
                   type="button"
                   onClick={async () => {
                     setMobileMenuOpen(false);
-                    await signOut({ callbackUrl: "/" });
+                    await signOut({ redirect: false });
+                    router.replace("/");
+                    router.refresh();
                   }}
                   className="flex w-full items-center gap-2.5 rounded-xl px-3.5 py-2 text-xs font-semibold text-rose-600 bg-rose-50 dark:bg-rose-950/50"
                 >

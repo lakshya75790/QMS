@@ -37,7 +37,7 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
       enableSystem
       disableTransitionOnChange
     >
-      <SessionProvider>
+      <SessionProvider refetchOnWindowFocus={false} refetchInterval={0} refetchWhenOffline={false}>
         <QueryClientProvider client={queryClient}>
           {children}
           <ReactQueryDevtools initialIsOpen={false} />
