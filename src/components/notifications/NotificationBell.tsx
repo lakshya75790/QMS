@@ -16,14 +16,12 @@ import {
   FileText,
   RefreshCw,
   ExternalLink,
-  ShieldCheck,
-  CheckCircle2,
-  AlertCircle,
 } from "lucide-react";
 import {
   useGetNotifications,
   useGetUnreadCount,
   useMarkNotificationRead,
+  NotificationItem,
 } from "@/feature/notifications/hooks/useNotifications";
 import useWebName from "@/hooks/useWebName";
 import Link from "next/link";
@@ -54,7 +52,7 @@ export default function NotificationBell() {
     markRead({ markAll: true });
   };
 
-  const handleNotificationClick = (notification: any) => {
+  const handleNotificationClick = (notification: NotificationItem) => {
     if (!notification.isRead) {
       markRead({ notificationId: notification.id });
     }
@@ -144,7 +142,7 @@ export default function NotificationBell() {
               </p>
             </div>
           ) : (
-            notifications.map((item: any) => (
+            notifications.map((item: NotificationItem) => (
               <button
                 key={item.id}
                 onClick={() => handleNotificationClick(item)}

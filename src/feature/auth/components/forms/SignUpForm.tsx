@@ -17,8 +17,6 @@ import React from "react";
 import {
   Activity,
   ShieldCheck,
-  User,
-  Phone,
   ArrowRight,
   CheckCircle2,
 } from "lucide-react";

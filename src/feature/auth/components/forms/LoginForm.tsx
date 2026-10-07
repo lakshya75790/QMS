@@ -20,9 +20,6 @@ import {
   Pencil,
   ShieldCheck,
   Lock,
-  Phone,
-  KeyRound,
-  CheckCircle2,
   ArrowRight,
 } from "lucide-react";
 

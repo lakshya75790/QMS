@@ -20,11 +20,14 @@ import {
   User,
   Phone,
   MessageSquare,
-  AlertCircle,
   RefreshCw,
 } from "lucide-react";
 import { formateReadableDateTime } from "@/lib/utils/dateUtils";
-import { useGetRescheduleRequests, useProcessRescheduleRequest } from "../../hook/useReschedule";
+import {
+  useGetRescheduleRequests,
+  useProcessRescheduleRequest,
+  RescheduleRequestItem,
+} from "../../hook/useReschedule";
 
 interface PendingRescheduleRequestsDialogProps {
   isOpen: boolean;
@@ -109,7 +112,7 @@ export default function PendingRescheduleRequestsDialog({
               </p>
             </div>
           ) : (
-            requests.map((req: any) => (
+            requests.map((req: RescheduleRequestItem) => (
               <Card key={req.id} className="border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-xs overflow-hidden">
                 <CardContent className="p-4 space-y-3">
                   {/* Header info */}

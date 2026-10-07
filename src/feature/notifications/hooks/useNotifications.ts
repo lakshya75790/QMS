@@ -1,8 +1,27 @@
 import { client } from "@/lib/rpc";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-
 import { useEffect, useRef } from "react";
+import { SelectNotificationT } from "@/lib/db/schema";
+
+export type NotificationItem = Omit<SelectNotificationT, "createdAt" | "updatedAt"> & {
+  createdAt: string | Date;
+  updatedAt: string | Date;
+};
+
+export interface NotificationsResponse {
+  data: NotificationItem[];
+  unreadCount: number;
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+  };
+}
+
+export interface UnreadCountResponse {
+  unreadCount: number;
+}
 
 export const useGetNotifications = (
   status = "all",
@@ -12,19 +31,20 @@ export const useGetNotifications = (
 ) => {
   const shownToastIdsRef = useRef<Set<string>>(new Set());
 
-  const queryResult = useQuery({
+  const queryResult = useQuery<NotificationsResponse>({
     queryKey: ["notifications", status, page, limit],
     queryFn: async () => {
       const res = await client.api.main.notifications.$get({
         query: { status, page: page.toString(), limit: limit.toString() },
       });
 
-      const data = (await res.json()) as any;
+      const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || "Failed to fetch notifications");
+        const errorData = data as { error?: string };
+        throw new Error(errorData.error || "Failed to fetch notifications");
       }
 
-      return data;
+      return data as unknown as NotificationsResponse;
     },
     enabled,
     staleTime: 5000,
@@ -36,7 +56,7 @@ export const useGetNotifications = (
 
   useEffect(() => {
     if (data?.data && Array.isArray(data.data)) {
-      data.data.forEach((item: any) => {
+      data.data.forEach((item: NotificationItem) => {
         if (!item.isRead && item.id && !shownToastIdsRef.current.has(item.id)) {
           shownToastIdsRef.current.add(item.id);
           if (item.type === "TOKEN_CALLED") {
@@ -54,15 +74,15 @@ export const useGetNotifications = (
 };
 
 export const useGetUnreadCount = () => {
-  return useQuery({
+  return useQuery<UnreadCountResponse>({
     queryKey: ["unreadNotificationCount"],
     queryFn: async () => {
       const res = await client.api.main.notifications["unread-count"].$get();
-      const data = (await res.json()) as any;
+      const data = await res.json();
       if (!res.ok) {
         return { unreadCount: 0 };
       }
-      return data;
+      return data as unknown as UnreadCountResponse;
     },
     staleTime: 5000,
     refetchInterval: 5000, // Real-time polling every 5 seconds
@@ -79,14 +99,15 @@ export const useMarkNotificationRead = () => {
         json,
       });
 
-      const data = (await res.json()) as any;
+      const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || "Failed to mark notification as read");
+        const errorData = data as { error?: string };
+        throw new Error(errorData.error || "Failed to mark notification as read");
       }
 
       return data;
     },
-    onSuccess: (data: any) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
       queryClient.invalidateQueries({ queryKey: ["unreadNotificationCount"] });
     },

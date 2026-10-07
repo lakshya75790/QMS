@@ -14,8 +14,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Calendar as CalendarIcon, Clock, AlertCircle } from "lucide-react";
-import { formateReadableDateTime, calendarDateFormat } from "@/lib/utils/dateUtils";
+import { Calendar as CalendarIcon, Clock } from "lucide-react";
+import { formateReadableDateTime } from "@/lib/utils/dateUtils";
 import { useDirectReschedule } from "../../hook/useReschedule";
 
 interface RescheduleAppointmentDialogProps {

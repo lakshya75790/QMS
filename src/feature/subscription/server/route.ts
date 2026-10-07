@@ -1,6 +1,6 @@
 import { db } from "@/lib/db/db";
 import { organizations } from "@/lib/db/schema";
-import { eq, ilike } from "drizzle-orm";
+import { ilike } from "drizzle-orm";
 import { Hono } from "hono";
 
 export const subscriptionRoute = new Hono().get("/:webName", async (c) => {

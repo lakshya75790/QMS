@@ -1,5 +1,5 @@
 import { db } from "@/lib/db/db";
-import { users } from "@/lib/db/schema";
+import { UserRole, users } from "@/lib/db/schema";
 import { normalizePhoneNumber } from "@/lib/utils/numberUtils";
 import { eq } from "drizzle-orm";
 import type { NextAuthConfig } from "next-auth";
@@ -17,7 +17,7 @@ const authProvidersConfig = {
           return {
             id: String(credentials.id),
             name: String(credentials.name || ""),
-            role: (credentials.role || "USER") as any,
+            role: (credentials.role || "USER") as UserRole,
             phone,
           };
         }

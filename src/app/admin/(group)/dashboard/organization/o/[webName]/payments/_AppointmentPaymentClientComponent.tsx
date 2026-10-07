@@ -9,7 +9,6 @@ import {
   Receipt,
   X,
   SlidersHorizontal,
-  ArrowUpDown,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";

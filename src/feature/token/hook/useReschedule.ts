@@ -1,6 +1,40 @@
 import { client } from "@/lib/rpc";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { RescheduleStatusT } from "@/lib/db/schema";
+
+export interface RescheduleRequestItem {
+  id: string;
+  appointmentId: string;
+  userId: string;
+  originalDate: string | Date;
+  requestedDate: string | Date;
+  reason: string | null;
+  status: RescheduleStatusT;
+  createdAt: string | Date;
+  rejectionReason: string | null;
+  patientName: string;
+  tokenNumber: number | string;
+  reasonForVisit: string;
+  phone: string;
+}
+
+export interface RescheduleHistoryItem {
+  id: string;
+  appointmentId: string;
+  originalDate: string | Date;
+  requestedDate: string | Date;
+  reason: string | null;
+  status: RescheduleStatusT;
+  createdAt: string | Date;
+  processedAt: string | Date | null;
+  rejectionReason: string | null;
+}
+
+export interface RescheduleMutationResponse {
+  message?: string;
+  error?: string;
+}
 
 export const useDirectReschedule = () => {
   const queryClient = useQueryClient();
@@ -15,14 +49,15 @@ export const useDirectReschedule = () => {
         json,
       });
 
-      const data = await res.json() as any;
+      const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || "Failed to reschedule appointment");
+        const errorData = data as { error?: string };
+        throw new Error(errorData.error || "Failed to reschedule appointment");
       }
 
-      return data;
+      return data as unknown as RescheduleMutationResponse;
     },
-    onSuccess: (data: any) => {
+    onSuccess: (data: RescheduleMutationResponse) => {
       toast.success(data?.message || "Appointment rescheduled successfully!");
       queryClient.invalidateQueries({ queryKey: ["searchToken"] });
       queryClient.invalidateQueries({ queryKey: ["appointments"] });
@@ -48,14 +83,15 @@ export const useRequestReschedule = () => {
         json,
       });
 
-      const data = await res.json() as any;
+      const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || "Failed to submit reschedule request");
+        const errorData = data as { error?: string };
+        throw new Error(errorData.error || "Failed to submit reschedule request");
       }
 
-      return data;
+      return data as unknown as RescheduleMutationResponse;
     },
-    onSuccess: (data: any) => {
+    onSuccess: (data: RescheduleMutationResponse) => {
       toast.success(data?.message || "Reschedule request submitted successfully!");
       queryClient.invalidateQueries({ queryKey: ["history"] });
       queryClient.invalidateQueries({ queryKey: ["rescheduleRequests"] });
@@ -68,19 +104,20 @@ export const useRequestReschedule = () => {
 };
 
 export const useGetRescheduleRequests = (status = "PENDING") => {
-  return useQuery({
+  return useQuery<{ data: RescheduleRequestItem[] }>({
     queryKey: ["rescheduleRequests", status],
     queryFn: async () => {
       const res = await client.api.main.token.reschedule.requests.$get({
         query: { status },
       });
 
-      const data = await res.json() as any;
+      const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || "Failed to fetch reschedule requests");
+        const errorData = data as { error?: string };
+        throw new Error(errorData.error || "Failed to fetch reschedule requests");
       }
 
-      return data;
+      return data as unknown as { data: RescheduleRequestItem[] };
     },
   });
 };
@@ -98,14 +135,15 @@ export const useProcessRescheduleRequest = () => {
         json,
       });
 
-      const data = await res.json() as any;
+      const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || "Failed to process reschedule request");
+        const errorData = data as { error?: string };
+        throw new Error(errorData.error || "Failed to process reschedule request");
       }
 
-      return data;
+      return data as unknown as RescheduleMutationResponse;
     },
-    onSuccess: (data: any) => {
+    onSuccess: (data: RescheduleMutationResponse) => {
       toast.success(data?.message || "Request processed successfully!");
       queryClient.invalidateQueries({ queryKey: ["rescheduleRequests"] });
       queryClient.invalidateQueries({ queryKey: ["searchToken"] });
@@ -118,7 +156,7 @@ export const useProcessRescheduleRequest = () => {
 };
 
 export const useGetRescheduleHistory = (appointmentId?: string) => {
-  return useQuery({
+  return useQuery<{ data: RescheduleHistoryItem[] }>({
     queryKey: ["rescheduleHistory", appointmentId],
     enabled: !!appointmentId,
     queryFn: async () => {
@@ -127,12 +165,13 @@ export const useGetRescheduleHistory = (appointmentId?: string) => {
         param: { appointmentId },
       });
 
-      const data = await res.json() as any;
+      const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || "Failed to fetch reschedule history");
+        const errorData = data as { error?: string };
+        throw new Error(errorData.error || "Failed to fetch reschedule history");
       }
 
-      return data;
+      return data as unknown as { data: RescheduleHistoryItem[] };
     },
   });
 };

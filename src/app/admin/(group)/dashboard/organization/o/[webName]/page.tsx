@@ -1,6 +1,5 @@
 import { currentUser } from "@/action/currentUser";
 import StartEndButton from "@/components/buttons/StartEndButton";
-import AddOrgButton from "@/feature/admin/dashboard/components/button/AddOrgButton";
 import { AppointmentStatsCard } from "@/feature/admin/dashboard/components/cards/AppointmentStatsCard";
 import TrendChart from "@/feature/admin/dashboard/components/chart/TrendChart";
 import { client } from "@/lib/rpc";

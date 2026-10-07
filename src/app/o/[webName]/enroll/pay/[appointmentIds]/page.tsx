@@ -21,7 +21,7 @@ import PaymentTabsSection from "@/feature/payments/appointmentPayments/component
 import { client } from "@/lib/rpc";
 import { getReadableErrorMessage } from "@/lib/utils/stringUtils";
 import { PagePropsPromise } from "@/types";
-import { CheckCircle2, CreditCard, Package, Receipt, Stethoscope, User, ArrowLeft, PlusCircle } from "lucide-react";
+import { CreditCard, Package, Receipt, Stethoscope, User, PlusCircle, CheckCircle2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import Script from "next/script";
 import React, { Suspense } from "react";
@@ -142,7 +142,7 @@ const page = async ({ params }: PagePropsPromise) => {
             Generated Queue Tokens
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {paymentInfo.appointmentWithCost.map((item: any) => (
+            {paymentInfo.appointmentWithCost.map((item) => (
               <Card
                 key={item.appointment.id}
                 className="rounded-2xl border border-teal-200/80 dark:border-teal-800/80 bg-gradient-to-br from-teal-50/40 to-cyan-50/40 dark:from-teal-950/30 dark:to-cyan-950/30 p-5 shadow-xs relative overflow-hidden"
@@ -206,7 +206,7 @@ const page = async ({ params }: PagePropsPromise) => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {paymentInfo?.appointmentWithCost.map((item: any) => (
+                    {paymentInfo?.appointmentWithCost.map((item) => (
                       <TableRow key={item.appointment.id}>
                         <TableCell className="font-semibold text-xs text-slate-900 dark:text-white">
                           {item.appointment.patientName}
@@ -263,7 +263,7 @@ const page = async ({ params }: PagePropsPromise) => {
               </CardHeader>
               <CardContent className="pt-4">
                 <div className="space-y-3">
-                  {paymentInfo.appointmentWithCost.map((item: any) => (
+                  {paymentInfo.appointmentWithCost.map((item) => (
                     <div
                       key={item.appointment.id}
                       className="flex justify-between items-center text-xs"

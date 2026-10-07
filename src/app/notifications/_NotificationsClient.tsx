@@ -23,18 +23,17 @@ import {
   useGetNotifications,
   useGetUnreadCount,
   useMarkNotificationRead,
+  NotificationItem,
 } from "@/feature/notifications/hooks/useNotifications";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 interface NotificationsClientProps {
   showBackButton?: boolean;
 }
 
 export default function NotificationsClient({ showBackButton = false }: NotificationsClientProps) {
-  const router = useRouter();
   const [tab, setTab] = useState<"all" | "unread" | "read">("all");
   const [page, setPage] = useState(1);
   const limit = 15;
@@ -75,7 +74,7 @@ export default function NotificationsClient({ showBackButton = false }: Notifica
     }
   };
 
-  const handleNotificationClick = (notif: any) => {
+  const handleNotificationClick = (notif: NotificationItem) => {
     if (!notif.isRead) {
       markReadMutation.mutate({ notificationId: notif.id });
     }
@@ -215,7 +214,7 @@ export default function NotificationsClient({ showBackButton = false }: Notifica
             </p>
           </div>
         ) : (
-          notifications.map((notif: any) => {
+          notifications.map((notif: NotificationItem) => {
             const notifDate = notif.createdAt ? new Date(notif.createdAt) : new Date();
             const distance = formatDistanceToNow(notifDate, { addSuffix: true });
             const exactDate = format(notifDate, "MMM d, yyyy 'at' h:mm a");

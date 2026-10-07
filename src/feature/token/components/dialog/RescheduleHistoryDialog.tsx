@@ -9,9 +9,9 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { History, Calendar, ArrowRight, CheckCircle2, XCircle, Clock } from "lucide-react";
+import { History, ArrowRight, Clock } from "lucide-react";
 import { formateReadableDateTime } from "@/lib/utils/dateUtils";
-import { useGetRescheduleHistory } from "../../hook/useReschedule";
+import { useGetRescheduleHistory, RescheduleHistoryItem } from "../../hook/useReschedule";
 
 interface RescheduleHistoryDialogProps {
   appointmentId: string;
@@ -52,7 +52,7 @@ export default function RescheduleHistoryDialog({
               No reschedule history found for this appointment.
             </div>
           ) : (
-            history.map((item: any) => (
+            history.map((item: RescheduleHistoryItem) => (
               <div
                 key={item.id}
                 className="p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 space-y-2 text-xs"

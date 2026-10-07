@@ -30,6 +30,10 @@ const getData = async (webName: string) => {
       },
     });
 
+    if (!res.ok) {
+      return null;
+    }
+
     const data = await res.json();
     return data;
   } catch (error) {

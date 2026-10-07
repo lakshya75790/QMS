@@ -1,5 +1,5 @@
 import { db } from "@/lib/db/db";
-import { appointments, notifications, organizationUsers, organizations, users } from "@/lib/db/schema";
+import { appointments, notifications, organizationUsers, organizations } from "@/lib/db/schema";
 import { and, asc, eq, gte, lte, sql } from "drizzle-orm";
 import { startOfDay, endOfDay } from "date-fns";
 

@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { userRoleLimitedAccess } from "@/constant";
-import { User, Phone, Shield } from "lucide-react";
+import { User, Phone } from "lucide-react";
 
 const AddEditOrgUserForm = () => {
   const { form, handleSubmit, isLoading } = useAddEditOrgUserForm();

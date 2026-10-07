@@ -1,5 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { ClockIcon, CheckCircle2, Clock, User } from "lucide-react";
+import { ClockIcon, CheckCircle2, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { getInitials } from "@/lib/utils/stringUtils";
 import { formatDate } from "@/lib/utils/dateUtils";

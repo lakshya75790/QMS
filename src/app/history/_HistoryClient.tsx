@@ -13,7 +13,6 @@ import {
   Clock, 
   Download, 
   User, 
-  Sparkles, 
   CheckCircle2, 
   ShieldCheck, 
   Eye,
@@ -81,7 +80,7 @@ const HistoryClient = () => {
         <div className="space-y-1 max-w-sm">
           <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">No Appointments Found</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            You don't have any recorded medical visits or token history yet.
+            You don&apos;t have any recorded medical visits or token history yet.
           </p>
         </div>
       </div>
@@ -103,7 +102,7 @@ const HistoryClient = () => {
             </Badge>
           </div>
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            Here's an overview of your appointments and visit history.
+            Here&apos;s an overview of your appointments and visit history.
           </p>
         </div>
       </div>

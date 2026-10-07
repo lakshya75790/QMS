@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { Download, Calendar, Clock, Ticket, FileText, CheckCircle2, Eye, User, History, Send } from "lucide-react";
+import { Download, Calendar, Clock, FileText, CheckCircle2, Eye, User, History, Send } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { formateReadableDateTime, formatDate } from "@/lib/utils/dateUtils";
+import { formateReadableDateTime } from "@/lib/utils/dateUtils";
 import { HistoryResponseType } from "../../hooks/useGetUserHistory";
 import {
   Dialog,
@@ -98,7 +98,6 @@ const ViewHistoryCard = ({ appointment, onDownload, isLatest = false }: ViewHist
         {(() => {
           const isCompleted = appointment.appointmentStatus?.toLowerCase() === "completed";
           const canReschedule = !isCompleted || !!appointment.revisitTime;
-          const targetDate = isCompleted && appointment.revisitTime ? appointment.revisitTime : appointment.createdAt;
 
           return (
             <div className="flex items-center justify-between gap-2 pt-1 border-t border-slate-100 dark:border-slate-800/60">

@@ -1,6 +1,6 @@
 import React from "react";
 import { ColumnDef, Row } from "@tanstack/react-table";
-import { ClockIcon, Edit, Building2 } from "lucide-react";
+import { ClockIcon, Edit } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { getInitials } from "@/lib/utils/stringUtils";
 import { formatDate } from "@/lib/utils/dateUtils";

@@ -2,6 +2,25 @@ import { useQuery } from "@tanstack/react-query";
 import { client } from "@/lib/rpc";
 import useWebName from "@/hooks/useWebName";
 
+export interface ClinicPatientItem {
+  userId: string;
+  phone: string;
+  patientName: string;
+  totalVisits: number;
+  lastVisit: string;
+  latestStatus: string | null;
+}
+
+export interface ClinicPatientsResponse {
+  data: ClinicPatientItem[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
 interface UseGetPatientsProps {
   page?: string;
   limit?: string;
@@ -11,7 +30,7 @@ interface UseGetPatientsProps {
 export const useGetPatients = ({ page = "1", limit = "15", search }: UseGetPatientsProps = {}) => {
   const { webName } = useWebName();
 
-  return useQuery({
+  return useQuery<ClinicPatientsResponse>({
     queryKey: ["clinicPatients", webName, page, limit, search],
     queryFn: async () => {
       if (!webName) return { data: [], pagination: { total: 0, page: 1, limit: 15, totalPages: 1 } };
@@ -25,12 +44,13 @@ export const useGetPatients = ({ page = "1", limit = "15", search }: UseGetPatie
         },
       });
 
-      const data = (await res.json()) as any;
+      const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || "Failed to fetch patients list");
+        const errorData = data as { error?: string };
+        throw new Error(errorData.error || "Failed to fetch patients list");
       }
 
-      return data;
+      return data as ClinicPatientsResponse;
     },
     enabled: !!webName,
   });

@@ -50,7 +50,7 @@ const ViewUsers = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRole, setSelectedRole] = useState<string>("ALL");
 
-  const users = data?.users || [];
+  const users = useMemo(() => data?.users || [], [data?.users]);
 
   // Filtered users list
   const filteredUsers = useMemo(() => {

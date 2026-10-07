@@ -13,8 +13,6 @@ import {
   Activity,
   Menu,
   X,
-  Clock,
-  Coins,
   LogOut,
   Layout,
 } from "lucide-react";

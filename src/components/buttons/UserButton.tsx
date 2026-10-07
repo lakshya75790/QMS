@@ -10,11 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
-  Calendar,
-  Clock,
-  Coins,
   LogOut,
-  Tv,
   ChevronDown,
   Layout,
 } from "lucide-react";

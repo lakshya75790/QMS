@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useGetPatients } from "../../hooks/useGetPatients";
+import { useGetPatients, ClinicPatientItem } from "../../hooks/useGetPatients";
 import { Search, User, Phone, Calendar, Hash, CheckCircle2, Clock, XCircle, RefreshCw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -21,7 +21,7 @@ export default function ViewPatientsList() {
   const patients = data?.data || [];
   const pagination = data?.pagination || { total: 0, page: 1, limit: 15, totalPages: 1 };
 
-  const getStatusBadge = (status?: string) => {
+  const getStatusBadge = (status?: string | null) => {
     switch (status?.toLowerCase()) {
       case "completed":
         return (
@@ -115,7 +115,7 @@ export default function ViewPatientsList() {
                   </td>
                 </tr>
               ) : (
-                patients.map((patient: any) => (
+                patients.map((patient: ClinicPatientItem) => (
                   <tr
                     key={patient.userId}
                     className="cursor-default bg-white dark:bg-slate-900 hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors"
