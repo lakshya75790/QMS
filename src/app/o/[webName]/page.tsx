@@ -11,10 +11,9 @@ import {
 import BookLinkButton from "@/feature/organization/components/sections/BookLinkButton";
 import Title from "@/feature/organization/components/sections/Title";
 import { PagePropsPromise } from "@/types";
-import { client } from "@/lib/rpc";
 import { db } from "@/lib/db/db";
-import { organizations } from "@/lib/db/schema";
-import { desc, eq } from "drizzle-orm";
+import { organizations, organizationUsers, users } from "@/lib/db/schema";
+import { desc, eq, ilike } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import UserType from "@/feature/organization/components/sections/UserType";
 
@@ -22,22 +21,38 @@ export const revalidate = 3600;
 
 export const dynamicParams = true;
 
-const getData = async (webName: string) => {
+const getData = async (rawOrgName: string) => {
   try {
-    const res = await client.api.main.org.o[":orgName"]["$get"]({
-      param: {
-        orgName: webName,
-      },
-    });
-
-    if (!res.ok) {
+    if (!rawOrgName || rawOrgName === "undefined" || rawOrgName === "null") {
       return null;
     }
+    const orgName = decodeURIComponent(rawOrgName).toLowerCase().trim();
+    const org = await db
+      .select({
+        doctorWebName: organizations.doctorWebName,
+        serviceStartDate: organizations.serviceStartDate,
+        description: organizations.description,
+        orgType: organizations.orgType,
+        serviceEndDate: organizations.serviceEndDate,
+        userLimit: organizations.userLimit,
+        name: users.name,
+        phone: users.phone,
+        orgEmail: organizations.orgEmail,
+        businessType: organizations.businessType,
+      })
+      .from(organizations)
+      .leftJoin(
+        organizationUsers,
+        eq(organizations.id, organizationUsers.organizationId),
+      )
+      .leftJoin(users, eq(organizationUsers.userId, users.id))
+      .where(ilike(organizations.doctorWebName, orgName))
+      .limit(1)
+      .then((rows) => rows[0]);
 
-    const data = await res.json();
-    return data;
+    return org || null;
   } catch (error) {
-    console.log(error);
+    console.error("Error fetching org in page:", error);
     return null;
   }
 };

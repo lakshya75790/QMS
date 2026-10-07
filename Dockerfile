@@ -86,7 +86,8 @@ RUN echo "Runner stage: Current directory: $(pwd)"
 # Disable telemetry and set production environment
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
-
+ENV HOSTNAME="0.0.0.0"
+ENV PORT=10000
 
 # Create a system user
 RUN addgroup --system --gid 1001 nodejs && \
@@ -96,7 +97,7 @@ RUN addgroup --system --gid 1001 nodejs && \
 RUN id nextjs
 
 # Copy built files from builder stage
-COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
@@ -110,7 +111,7 @@ USER nextjs
 RUN whoami
 
 # Expose the port
-EXPOSE 3000 
+EXPOSE 10000
 
 # Start the application
 CMD ["node", "server.js"]
