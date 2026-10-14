@@ -59,12 +59,8 @@ export const useGetNotifications = (
       data.data.forEach((item: NotificationItem) => {
         if (!item.isRead && item.id && !shownToastIdsRef.current.has(item.id)) {
           shownToastIdsRef.current.add(item.id);
-          if (item.type === "TOKEN_CALLED") {
-            toast.info(`🔔 ${item.title}`, {
-              description: item.message,
-              duration: 8000,
-            });
-          }
+          // Token-calling toast popup ("Your Token Is Now Being Called") is disabled globally
+          // per QMS requirements, while preserving the notification in the notification center.
         }
       });
     }
