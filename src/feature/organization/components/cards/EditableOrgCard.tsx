@@ -1,9 +1,8 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Edit, ExternalLink, Calendar, Users, Building2 } from "lucide-react";
+import { Edit, Calendar, Users, Building2 } from "lucide-react";
 import { UseViewOrgResponseT } from "../../hooks/useViewOrg";
-import Link from "next/link";
 import DeleteOrgButton from "../buttons/DeleteOrgButton";
 
 interface EditableOrgCardProps {
@@ -22,13 +21,12 @@ const EditableOrgCard = ({ org, onEdit }: EditableOrgCardProps) => {
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400">
                 <Building2 className="h-4 w-4" />
               </div>
-              <Link
-                href={`/admin/dashboard/organization/o/${org.doctorWebName}`}
-                className="text-base font-bold text-slate-900 dark:text-white hover:text-teal-600 dark:hover:text-teal-400 transition-colors truncate capitalize block"
+              <h3
+                className="text-base font-bold text-slate-900 dark:text-white truncate capitalize block"
                 title={org.doctorWebName}
               >
                 {org.doctorWebName}
-              </Link>
+              </h3>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 truncate pl-10 font-mono">
               ID: {org.id}
@@ -60,41 +58,24 @@ const EditableOrgCard = ({ org, onEdit }: EditableOrgCardProps) => {
         </div>
 
         {/* Card Footer Actions */}
-        <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
+        <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-1">
           <Button
-            asChild
-            variant="outline"
-            size="sm"
-            className="h-8 rounded-lg text-xs font-semibold border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-teal-50 hover:text-teal-700 dark:hover:bg-teal-950/50"
+            type="button"
+            onClick={() => onEdit(org.doctorWebName)}
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 rounded-lg text-slate-500 hover:text-teal-600 hover:bg-teal-50 dark:hover:bg-slate-800 transition-colors"
+            title="Edit Organization"
+            aria-label="Edit Organization"
           >
-            <Link
-              href={`/admin/dashboard/organization/o/${org.doctorWebName}`}
-              className="flex items-center gap-1.5"
-            >
-              <span>Manage</span>
-              <ExternalLink className="h-3 w-3" />
-            </Link>
+            <Edit className="h-4 w-4" />
           </Button>
 
-          <div className="flex items-center gap-1">
-            <Button
-              type="button"
-              onClick={() => onEdit(org.doctorWebName)}
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 rounded-lg text-slate-500 hover:text-teal-600 hover:bg-teal-50 dark:hover:bg-slate-800 transition-colors"
-              title="Edit Organization"
-              aria-label="Edit Organization"
-            >
-              <Edit className="h-4 w-4" />
-            </Button>
-
-            <DeleteOrgButton
-              variant="icon"
-              webName={org.doctorWebName}
-              displayName={org.doctorWebName}
-            />
-          </div>
+          <DeleteOrgButton
+            variant="icon"
+            webName={org.doctorWebName}
+            displayName={org.doctorWebName}
+          />
         </div>
       </CardContent>
     </Card>

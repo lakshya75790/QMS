@@ -41,22 +41,16 @@ function DashboardSidebarNav() {
   const filteredTopNavMenu = useMemo(() => {
     if (!user) return [];
     return dashboardContent.topNavMenu.filter((item) => {
-      return (
-        item.accessBy.includes(user.role) ||
-        (webName && user.role === "SUPER_ADMIN")
-      );
+      return item.accessBy.includes(user.role);
     });
-  }, [user, webName]);
+  }, [user]);
 
   const filteredBottomNavMenu = useMemo(() => {
     if (!user) return [];
     return dashboardContent.bottomNavMenu.filter((item) => {
-      return (
-        item.accessBy.includes(user.role) ||
-        (webName && user.role === "SUPER_ADMIN")
-      );
+      return item.accessBy.includes(user.role);
     });
-  }, [user, webName]);
+  }, [user]);
 
   // Reusable function to render a menu button
   const renderMenuButton = (
@@ -124,7 +118,7 @@ function DashboardSidebarNav() {
       )}
 
       {/* Clinic / Organization Section */}
-      {user && (filteredTopNavMenu.length > 0 || (webName && user.role === "SUPER_ADMIN")) && (
+      {user && filteredTopNavMenu.length > 0 && (
         <SidebarGroup className="p-0 space-y-2">
           {/* Clinic Identity Card */}
           <div className="mx-1 mb-2 rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-900/60 p-2.5 flex items-center gap-2.5 group-data-[collapsible=icon]:hidden">
@@ -153,10 +147,7 @@ function DashboardSidebarNav() {
             {/* Submenus (Settings / Management) */}
             {dashboardContent.navMenuWithSubmenu.map((item) => {
               const filteredItems = item.items?.filter((sub) => {
-                return (
-                  sub.accessBy.includes(user?.role || "USER") ||
-                  (webName && user.role === "SUPER_ADMIN")
-                );
+                return sub.accessBy.includes(user?.role || "USER");
               });
 
               if (!filteredItems?.length) return null;

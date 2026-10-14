@@ -18,7 +18,6 @@ import {
 } from "lucide-react";
 import { Metadata } from "next";
 import React, { Suspense } from "react";
-import SuperAdminOnlyOption from "./_SuperAdminOnlyOption";
 import { getReadableErrorMessage } from "@/lib/utils/stringUtils";
 import SubscriptionPopupAlert from "@/components/alerts/SubscriptionPopupAlert";
 import PaymentDashboardContent from "./payment-overview/PaymentDashboardContent";
@@ -76,7 +75,7 @@ const getStats = async ({
 
 const page = async ({ searchParams, params }: PagePropsPromise) => {
   const user = await currentUser();
-  if (!user || (user?.role !== "SUPER_ADMIN" && user?.role !== "ADMIN")) {
+  if (!user || user?.role !== "ADMIN") {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <p className="text-sm font-semibold text-slate-500">Not Authorized</p>
@@ -125,11 +124,6 @@ const page = async ({ searchParams, params }: PagePropsPromise) => {
       <SubscriptionPopupAlert />
 
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 space-y-8 pt-4">
-        {user?.role === "SUPER_ADMIN" && (
-          <Suspense fallback={<Loader className="h-5 w-5 animate-spin text-teal-600" />}>
-            <SuperAdminOnlyOption />
-          </Suspense>
-        )}
 
         {/* Dashboard Header */}
         <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-xs">

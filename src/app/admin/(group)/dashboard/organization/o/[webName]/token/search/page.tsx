@@ -9,8 +9,7 @@ const page = async () => {
   if (
     !user ||
     (user?.role !== "ADMIN" &&
-      user?.role !== "RECEPTIONIST" &&
-      user.role !== "SUPER_ADMIN")
+      user?.role !== "RECEPTIONIST")
   ) {
     return <div>Not Authorized</div>;
   }
