@@ -35,6 +35,7 @@ const useConfirmCashPayment = () => {
       }
       queryClient.invalidateQueries({ queryKey: ["appointment-payments"] });
       queryClient.invalidateQueries({ queryKey: ["payment-overview"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
       queryClient.invalidateQueries({ queryKey: ["appointments"] });
       queryClient.invalidateQueries({ queryKey: ["tokens"] });
       queryClient.invalidateQueries({ queryKey: ["waiting-lobby"] });

@@ -45,11 +45,11 @@ const usePaymentOverview = (isOverviewOnly: TrueFalseStr = "false") => {
 
       return stats;
     },
-    staleTime: 60000, // Cache overview stats for 1 minute
+    enabled: !!webName,
+    staleTime: 60 * 1000, // Cache overview stats for 1 minute
+    gcTime: 5 * 60 * 1000, // Retain in memory for 5 minutes
     refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-    refetchOnMount: false,
-    retry: 0,
+    retry: 1,
   });
 };
 

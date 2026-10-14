@@ -53,6 +53,9 @@ export const useEnrollForm = (
     onSuccess: ({ data }) => {
       toast.success("Enrollment submitted successfully", { id: toastId });
       queryClient.invalidateQueries({ queryKey: ["userTokens"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["payment-overview"] });
+      queryClient.invalidateQueries({ queryKey: ["appointments"] });
       const hash = data[APPOINTMENT_ID_HASH_NAME];
       replace(`/o/${webName}/enroll/pay/${encodeURIComponent(hash)}`);
 

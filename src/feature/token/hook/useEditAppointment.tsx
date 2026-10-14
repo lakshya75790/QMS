@@ -74,6 +74,8 @@ export const useEditAppointment = ({
       queryClient.invalidateQueries({
         queryKey: ["appointment", appointmentId],
       });
+      queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["payment-overview"] });
       onSuccessFn();
     },
     onError: (error) => {

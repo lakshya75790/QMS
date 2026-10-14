@@ -63,6 +63,8 @@ export const useDirectReschedule = () => {
       queryClient.invalidateQueries({ queryKey: ["appointments"] });
       queryClient.invalidateQueries({ queryKey: ["history"] });
       queryClient.invalidateQueries({ queryKey: ["rescheduleRequests"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["payment-overview"] });
     },
     onError: (error: Error) => {
       toast.error(error.message || "Failed to reschedule appointment");
@@ -148,6 +150,8 @@ export const useProcessRescheduleRequest = () => {
       queryClient.invalidateQueries({ queryKey: ["rescheduleRequests"] });
       queryClient.invalidateQueries({ queryKey: ["searchToken"] });
       queryClient.invalidateQueries({ queryKey: ["history"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["payment-overview"] });
     },
     onError: (error: Error) => {
       toast.error(error.message || "Failed to process request");
