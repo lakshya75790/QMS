@@ -10,6 +10,7 @@ import {
   appointmentPaymentLinks,
   appointments,
   users,
+  subscriptionPlans,
 } from "@/lib/db/schema";
 import { currentUser } from "@/action/currentUser";
 import { db } from "@/lib/db/db";
@@ -55,8 +56,9 @@ const organizationRoutes = new Hono()
       const {
         phone: phoneNumber,
         doctorName,
-        serviceEndDate,
-        serviceStartDate,
+        serviceEndDate: reqEndDate,
+        serviceStartDate: reqStartDate,
+        planId,
         ...rest
       } = c.req.valid("json");
 
@@ -73,6 +75,31 @@ const organizationRoutes = new Hono()
           400,
         );
       }
+
+      // Fetch and validate the selected subscription plan
+      const [selectedPlan] = await db
+        .select()
+        .from(subscriptionPlans)
+        .where(eq(subscriptionPlans.id, planId))
+        .limit(1);
+
+      if (!selectedPlan) {
+        return c.json({ error: "Selected subscription plan not found" }, 404);
+      }
+
+      if (!selectedPlan.isActive) {
+        return c.json(
+          { error: "Selected subscription plan is inactive and cannot be assigned" },
+          400,
+        );
+      }
+
+      // Dynamically calculate subscription validity dates from plan
+      const serviceStartDate = reqStartDate || new Date();
+      const serviceEndDate =
+        reqEndDate ||
+        new Date(serviceStartDate.getTime() + selectedPlan.validityDays * 24 * 60 * 60 * 1000);
+
       const { error } = validateDateRange({
         endDate: serviceEndDate,
         startDate: serviceStartDate,
@@ -101,6 +128,9 @@ const organizationRoutes = new Hono()
         .insert(organizations)
         .values({
           ...rest,
+          userLimit: rest.userLimit ?? 0,
+          plan: selectedPlan.name,
+          planId: selectedPlan.id,
           orgEmail: rest.orgEmail,
           doctorWebName: rest.doctorWebName.toLowerCase()?.trim(),
           serviceEndDate,
@@ -183,8 +213,10 @@ const organizationRoutes = new Hono()
         const [org] = await db
           .select({
             orgId: organizations.id,
+            planId: organizations.planId,
+            serviceStartDate: organizations.serviceStartDate,
             userId: users.id,
-            userName: users.name, // Add more fields as needed
+            userName: users.name,
             userPhone: users.phone,
           })
           .from(organizations)
@@ -199,24 +231,34 @@ const organizationRoutes = new Hono()
           return c.json({ error: "Organization not found" }, 404);
         }
 
-        // Check if the user is an ADMIN of the organization or a SUPER_ADMIN
-        // const [orgUser] = await db
-        //   .select({ userId: organizationUsers.userId })
-        //   .from(organizationUsers)
-        //   .where(and(eq(organizationUsers.organizationId, org.id)));
-
-        // if (!orgUser) {
-        //   return c.json(
-        //     { error: "Forbidden. You don't have access to these resources!" },
-        //     403,
-        //   );
-        // }
-
         // Remove undefined values from body
         const filteredBody = Object.fromEntries(
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           Object.entries(body).filter(([_, value]) => value !== undefined),
-        ) as Partial<typeof body>;
+        ) as any;
+
+        // If plan is updated, validate and recalculate
+        if (body.planId) {
+          const [selectedPlan] = await db
+            .select()
+            .from(subscriptionPlans)
+            .where(eq(subscriptionPlans.id, body.planId))
+            .limit(1);
+
+          if (!selectedPlan) {
+            return c.json({ error: "Selected subscription plan not found" }, 404);
+          }
+
+          filteredBody.planId = selectedPlan.id;
+          filteredBody.plan = selectedPlan.name;
+
+          if (!body.serviceEndDate) {
+            const startDate = body.serviceStartDate || org.serviceStartDate || new Date();
+            filteredBody.serviceEndDate = new Date(
+              new Date(startDate).getTime() + selectedPlan.validityDays * 24 * 60 * 60 * 1000,
+            );
+          }
+        }
 
         // Update organization
         const [updatedOrg] = await db
@@ -325,6 +367,12 @@ const organizationRoutes = new Hono()
           serviceStartDate: organizations.serviceStartDate,
           serviceEndDate: organizations.serviceEndDate,
           userLimit: organizations.userLimit,
+          plan: organizations.plan,
+          planId: organizations.planId,
+          planPrice: subscriptionPlans.price,
+          planCurrency: subscriptionPlans.currency,
+          planDuration: subscriptionPlans.duration,
+          planDurationUnit: subscriptionPlans.durationUnit,
           enabled: organizations.enabled,
           orgType: organizations.orgType,
           orgEmail: organizations.orgEmail,
@@ -332,6 +380,7 @@ const organizationRoutes = new Hono()
           total: sql<number>`COUNT(*) OVER()`.as("total"),
         })
         .from(organizations)
+        .leftJoin(subscriptionPlans, eq(organizations.planId, subscriptionPlans.id))
         .where(searchCondition)
         .orderBy(desc(organizations.updatedAt))
         .offset(offset)
@@ -368,13 +417,19 @@ const organizationRoutes = new Hono()
           orgType: organizations.orgType,
           serviceEndDate: organizations.serviceEndDate,
           userLimit: organizations.userLimit,
+          plan: organizations.plan,
+          planId: organizations.planId,
+          planPrice: subscriptionPlans.price,
+          planCurrency: subscriptionPlans.currency,
+          planDuration: subscriptionPlans.duration,
+          planDurationUnit: subscriptionPlans.durationUnit,
           name: users.name,
           phone: users.phone,
           orgEmail: organizations.orgEmail,
           businessType: organizations.businessType,
         })
-
         .from(organizations)
+        .leftJoin(subscriptionPlans, eq(organizations.planId, subscriptionPlans.id))
         .leftJoin(
           organizationUsers,
           eq(organizations.id, organizationUsers.organizationId),

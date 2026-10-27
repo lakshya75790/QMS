@@ -43,25 +43,12 @@ const useAddEditOrgForm = () => {
         description: orgInfo?.orgInfo?.description || "",
         orgType: orgInfo?.orgInfo?.orgType || "HOSPITAL",
         phone: orgInfo.orgInfo.phone || "+91",
-        userLimit: orgInfo.orgInfo.userLimit || 1,
-        serviceStartDate: orgInfo.orgInfo.serviceStartDate
-          ? new Date(orgInfo.orgInfo.serviceStartDate)
-          : undefined,
-        serviceEndDate: orgInfo.orgInfo.serviceEndDate
-          ? new Date(orgInfo.orgInfo.serviceEndDate)
-          : undefined,
+        planId: (orgInfo.orgInfo as any)?.planId || "",
+        plan: (orgInfo.orgInfo.plan as any) || "",
+        userLimit: 0,
         orgEmail: orgInfo.orgInfo.orgEmail || "",
         businessType: (orgInfo.orgInfo.businessType ||
           "individual") as (typeof businessTypeArr)[number],
-
-        // transaction: {
-        //   // total: orgInfo.orgInfo.transaction.total,
-        //   // paid: orgInfo.orgInfo.transaction.paid,
-        //   // due: orgInfo.orgInfo.transaction.due,
-        //   total: 0,
-        //   paid: 0,
-        //   due: 0,
-        // },
       };
     }
     return {
@@ -69,14 +56,12 @@ const useAddEditOrgForm = () => {
       orgEmail: "",
       doctorWebName: "",
       phone: "+91",
-      userLimit: 1,
+      planId: "",
+      plan: "",
+      userLimit: 0,
       description: "",
       orgType: "HOSPITAL",
-      // transaction: {
-      //   total: 0,
-      //   paid: 0,
-      //   due: 0,
-      // },
+      businessType: "individual",
     };
   };
 

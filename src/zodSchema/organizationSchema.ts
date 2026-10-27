@@ -8,7 +8,6 @@ import {
   orgTypeArr,
   panRegex,
 } from "@/constant";
-// import { orgTransactionSchema } from "./transactionSchema";
 
 export const createOrgSchema = z.object({
   doctorName: z.string().nonempty(),
@@ -17,16 +16,23 @@ export const createOrgSchema = z.object({
   doctorWebName: z.string().trim().nonempty().min(4).max(200),
   description: z.string().max(20),
   orgType: z.enum(orgTypeArr).default("HOSPITAL"),
-  serviceStartDate: z.coerce.date(),
-  serviceEndDate: z.coerce.date(),
-  userLimit: z.coerce.number().min(1).int(),
+  planId: z.string().min(1, "Subscription Plan is required"),
+  plan: z.string().optional(),
+  serviceStartDate: z.coerce.date().optional(),
+  serviceEndDate: z.coerce.date().optional(),
+  userLimit: z.coerce.number().int().default(0).optional(),
   phone: phoneSchema,
   enabled: z.boolean().default(false),
   businessType: z.enum(businessTypeArr),
 });
 
 export const createOrgSchemaWithRefine = createOrgSchema.refine(
-  (data) => data.serviceEndDate >= data.serviceStartDate,
+  (data) => {
+    if (data.serviceStartDate && data.serviceEndDate) {
+      return data.serviceEndDate >= data.serviceStartDate;
+    }
+    return true;
+  },
   {
     message: "End date must be after or equal to start date.",
     path: ["serviceEndDate"],

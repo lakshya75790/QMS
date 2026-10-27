@@ -12,6 +12,7 @@ import {
   Settings,
   Tv,
   Users,
+  CreditCard,
 } from "lucide-react";
 
 type SubMenu = {
@@ -37,6 +38,12 @@ export const superAdminOnlyMenu: (TopNavT & {
     url: "/admin/dashboard/organization",
     accessBy: ["SUPER_ADMIN"],
     icon: BuildingIcon,
+  },
+  {
+    title: "Subscription Plans",
+    url: "/admin/dashboard/subscription-plans",
+    accessBy: ["SUPER_ADMIN"],
+    icon: CreditCard,
   },
   {
     title: "Transactions",

@@ -1,9 +1,11 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Edit, Calendar, Users, Building2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Edit, Calendar, Sparkles, Building2 } from "lucide-react";
 import { UseViewOrgResponseT } from "../../hooks/useViewOrg";
 import DeleteOrgButton from "../buttons/DeleteOrgButton";
+import { getSubscriptionPlanInfo } from "@/constant";
 
 interface EditableOrgCardProps {
   org: UseViewOrgResponseT["data"][number];
@@ -11,6 +13,8 @@ interface EditableOrgCardProps {
 }
 
 const EditableOrgCard = ({ org, onEdit }: EditableOrgCardProps) => {
+  const planInfo = getSubscriptionPlanInfo(org.plan);
+
   return (
     <Card className="rounded-2xl border border-slate-200/90 dark:border-slate-800/90 bg-white dark:bg-slate-900 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between overflow-hidden group">
       <CardContent className="p-5 flex flex-col justify-between flex-1 gap-4">
@@ -34,7 +38,7 @@ const EditableOrgCard = ({ org, onEdit }: EditableOrgCardProps) => {
           </div>
         </div>
 
-        {/* License & Service Details */}
+        {/* Subscription & Service Details */}
         <div className="space-y-2 py-1 text-xs text-slate-600 dark:text-slate-300 border-t border-slate-100 dark:border-slate-800/80 pt-3">
           <div className="flex items-center justify-between">
             <span className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
@@ -48,12 +52,15 @@ const EditableOrgCard = ({ org, onEdit }: EditableOrgCardProps) => {
 
           <div className="flex items-center justify-between">
             <span className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
-              <Users className="h-3.5 w-3.5 text-cyan-600" />
-              <span>User Limit</span>
+              <Sparkles className="h-3.5 w-3.5 text-teal-600" />
+              <span>Plan</span>
             </span>
-            <span className="font-semibold text-slate-800 dark:text-slate-200">
-              {org.userLimit} Users
-            </span>
+            <Badge
+              variant="outline"
+              className={`text-[11px] font-semibold py-0.5 px-2 ${planInfo.badgeClass}`}
+            >
+              {planInfo.name}
+            </Badge>
           </div>
         </div>
 

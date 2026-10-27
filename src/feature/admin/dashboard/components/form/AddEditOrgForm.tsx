@@ -1,9 +1,6 @@
 "use client";
-import { CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
 
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import {
   Form,
   FormControl,
@@ -14,15 +11,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils";
 import useAddEditOrgForm from "../../hooks/useAddEditOrgForm";
-import { useState } from "react";
-import { NumberInput } from "@/components/ui/number-input";
 import {
   Select,
   SelectContent,
@@ -30,8 +20,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { businessTypeObj, orgTypeArr } from "@/constant";
-// import { formatDate } from "@/lib/utils/dateUtils";
+import {
+  businessTypeObj,
+  orgTypeArr,
+  formatPlanDuration,
+} from "@/constant";
+import { useGetActiveSubscriptionPlans } from "@/feature/subscriptionPlan/hooks/useGetActiveSubscriptionPlans";
+import Link from "next/link";
+import { AlertCircle, PlusCircle } from "lucide-react";
 
 export default function AddEditOrgForm() {
   const {
@@ -39,28 +35,18 @@ export default function AddEditOrgForm() {
     handleSubmit,
     isLoading,
     orgInfo,
-    startDate,
-    // transaction,
-    // transactionId,
   } = useAddEditOrgForm();
-  const [openPopovers, setOpenPopovers] = useState({
-    startDate: false,
-    endDate: false,
-  });
 
-  // const paidAmount = form.watch("transaction.paid");
-  // const totalAmount = form.watch("transaction.total");
-  // useEffect(() => {
-  //   if (paidAmount === undefined || totalAmount === undefined) return;
-  //   if (paidAmount > totalAmount) return;
-  //   form.setValue("transaction.due", totalAmount - paidAmount);
-  //   return () => {};
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [paidAmount, totalAmount]);
+  const {
+    data: plansResponse,
+    isLoading: isPlansLoading,
+  } = useGetActiveSubscriptionPlans();
+  const activePlans = plansResponse?.data;
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+        {/* Doctor Name */}
         <FormField
           control={form.control}
           name="doctorName"
@@ -78,6 +64,8 @@ export default function AddEditOrgForm() {
             </FormItem>
           )}
         />
+
+        {/* Org Email */}
         <FormField
           control={form.control}
           name="orgEmail"
@@ -95,6 +83,8 @@ export default function AddEditOrgForm() {
             </FormItem>
           )}
         />
+
+        {/* Doctor Web Name */}
         <FormField
           control={form.control}
           name="doctorWebName"
@@ -119,6 +109,7 @@ export default function AddEditOrgForm() {
           )}
         />
 
+        {/* Description */}
         <FormField
           control={form.control}
           name="description"
@@ -132,12 +123,12 @@ export default function AddEditOrgForm() {
                   {...field}
                 />
               </FormControl>
-
               <FormMessage />
             </FormItem>
           )}
         />
 
+        {/* Org Type */}
         <FormField
           control={form.control}
           name="orgType"
@@ -147,7 +138,7 @@ export default function AddEditOrgForm() {
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger disabled={isLoading}>
-                    <SelectValue placeholder="Select a business type" />
+                    <SelectValue placeholder="Select an org type" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
@@ -162,142 +153,81 @@ export default function AddEditOrgForm() {
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="serviceStartDate"
-          render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel isRequiredField>Service Start Date</FormLabel>
-              <Popover
-                open={openPopovers.startDate}
-                onOpenChange={(o) =>
-                  setOpenPopovers((pre) => ({ ...pre, startDate: o }))
-                }
-              >
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "w-full border-input pl-3 text-left font-normal",
-                        !field.value && "text-muted-foreground",
-                      )}
-                      disabled={isLoading}
-                    >
-                      {field.value ? (
-                        format(field.value, "PPP")
-                      ) : (
-                        <span>Pick a date</span>
-                      )}
 
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={field.value}
-                    // onSelect={field.onChange}
-                    onSelect={(date) => {
-                      field.onChange(date);
-                      setOpenPopovers((pre) => ({ ...pre, startDate: false }));
-                    }}
-                    disabled={(date) => {
-                      const today = new Date();
-                      today.setHours(0, 0, 0, 0); // Reset time to start of day
-                      return date < today || date < new Date("1900-01-01");
-                    }}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-              <FormMessage />
-              <FormDescription>
-                The first day when services started.
-              </FormDescription>
-            </FormItem>
-          )}
-        />
+        {/* Subscription Plan (Dynamic from backend) */}
         <FormField
           control={form.control}
-          name="serviceEndDate"
+          name="planId"
           render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel isRequiredField>Service End Date</FormLabel>
-              <Popover
-                open={openPopovers.endDate}
-                onOpenChange={(o) =>
-                  setOpenPopovers((pre) => ({ ...pre, endDate: o }))
-                }
-              >
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={"outline"}
-                    className={cn(
-                      "w-full border-input pl-3 text-left font-normal",
-                      !field.value && "text-muted-foreground",
-                    )}
-                    // Disable the end date button if start date isn't selected
-                    disabled={!startDate || isLoading}
-                  >
-                    {field.value ? (
-                      format(field.value, "PPP")
-                    ) : (
-                      <span>
-                        {!startDate ? "Select start date first" : "Pick a date"}
-                      </span>
-                    )}
-                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={field.value}
-                    onSelect={(date) => {
-                      field.onChange(date);
-                      setOpenPopovers((pre) => ({ ...pre, endDate: false }));
-                    }}
-                    disabled={(date) => {
-                      const today = new Date();
-                      today.setHours(0, 0, 0, 0); // Reset time to start of day
-                      return (
-                        date < startDate || // Disable dates before start date
-                        date < today ||
-                        date < new Date("1900-01-01")
-                      );
-                    }}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-
-              <FormMessage />
-              <FormDescription>
-                The last day when services were provided.
-              </FormDescription>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="userLimit"
-          render={({ field: { value, onChange, ...rest } }) => (
             <FormItem>
-              <FormLabel isRequiredField>User Limit</FormLabel>
-              <FormControl>
-                <NumberInput
-                  value={value}
-                  onValueChange={(e) => onChange(e)}
-                  {...rest}
-                />
-              </FormControl>
-              <FormDescription>Maximum number of users allowed</FormDescription>
+              <FormLabel isRequiredField>Subscription Plan</FormLabel>
+              {isPlansLoading ? (
+                <div className="flex h-10 w-full items-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm text-muted-foreground">
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-teal-500 border-t-transparent" />
+                  <span>Loading subscription plans...</span>
+                </div>
+              ) : activePlans && activePlans.length > 0 ? (
+                <Select
+                  onValueChange={(val) => {
+                    field.onChange(val);
+                    const chosen = activePlans.find((p) => p.id === val);
+                    if (chosen) {
+                      form.setValue("plan", chosen.name);
+                    }
+                  }}
+                  defaultValue={field.value}
+                  value={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger disabled={isLoading}>
+                      <SelectValue placeholder="Select a subscription plan" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {activePlans.map((plan) => (
+                      <SelectItem key={plan.id} value={plan.id}>
+                        {plan.name} ({formatCurrency(plan.price)} /{" "}
+                        {formatPlanDuration(Number(plan.duration), plan.durationUnit)})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <div className="rounded-xl border border-amber-200 dark:border-amber-900/60 bg-amber-50 dark:bg-amber-950/30 p-3.5 space-y-2">
+                  <div className="flex items-start gap-2.5">
+                    <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                    <div className="space-y-1">
+                      <p className="text-xs font-semibold text-amber-900 dark:text-amber-200">
+                        No active subscription plans available
+                      </p>
+                      <p className="text-xs text-amber-700 dark:text-amber-300">
+                        Create and activate at least one subscription plan before creating an organization.
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="w-full text-xs h-8 border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-200 hover:bg-amber-100 dark:hover:bg-amber-900/40"
+                    asChild
+                  >
+                    <Link href="/admin/dashboard/subscription-plans">
+                      <PlusCircle className="h-3.5 w-3.5 mr-1.5" />
+                      Go to Subscription Plans
+                    </Link>
+                  </Button>
+                </div>
+              )}
+              <FormDescription>
+                Validity is automatically calculated from the configured plan duration. All plans support unlimited staff users.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
+
+        {/* Phone Number */}
         <FormField
           control={form.control}
           name="phone"
@@ -307,7 +237,7 @@ export default function AddEditOrgForm() {
               <FormControl>
                 <Input
                   disabled={isLoading}
-                  placeholder="+1 (555) 123-4567"
+                  placeholder="+91 9876543210"
                   type="tel"
                   readOnly={orgInfo?.type === "edit"}
                   onChange={(e) => {
@@ -322,6 +252,7 @@ export default function AddEditOrgForm() {
           )}
         />
 
+        {/* Business Type */}
         <FormField
           control={form.control}
           name="businessType"
@@ -330,7 +261,7 @@ export default function AddEditOrgForm() {
               <FormLabel isRequiredField>Business Type</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
-                  <SelectTrigger>
+                  <SelectTrigger disabled={isLoading}>
                     <SelectValue placeholder="Select Business Type" />
                   </SelectTrigger>
                 </FormControl>
@@ -345,111 +276,11 @@ export default function AddEditOrgForm() {
                   ))}
                 </SelectContent>
               </Select>
-
               <FormMessage />
             </FormItem>
           )}
         />
 
-        {/* {orgInfo?.type === "edit" && (
-          <div className="flex flex-col gap-2 text-sm text-muted-foreground">
-            <span>
-              {transaction?.createdAt
-                ? `This transaction was created on ${formatDate(transaction?.createdAt)} `
-                : " "}
-              {transaction?.updatedAt
-                ? ` and updated on ${formatDate(transaction?.updatedAt)} `
-                : " "}
-              To create new transaction, please click on new transaction button
-            </span>
-            <Button
-              variant={transactionId ? "outline" : "default"}
-              onClick={() => {
-                form.setValue(
-                  "transaction.transactionId",
-                  transactionId ? undefined : transaction?.id,
-                );
-              }}
-              size="sm"
-              type="button"
-              disabled={isLoading}
-            >
-              {transactionId ? "New Transaction" : "Update Transaction"}
-            </Button>
-
-            <span>
-              {transactionId ? (
-                <span>
-                  This transaction will be <strong> updated </strong> when you
-                  submit the form
-                </span>
-              ) : (
-                <span>
-                  `This is a new transaction, it will be
-                  <strong> created </strong> when you submit the form`
-                </span>
-              )}
-            </span>
-          </div>
-        )} */}
-        {/* <FormField
-          control={form.control}
-          name="transaction.total"
-          render={({ field: { value, onChange, ...rest } }) => (
-            <FormItem>
-              <FormLabel>Total Amount</FormLabel>
-              <FormControl>
-                <NumberInput
-                  value={value}
-                  onValueChange={(e) => onChange(e)}
-                  {...rest}
-                />
-              </FormControl>
-              <FormDescription>
-                The total amount of the transaction
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        /> */}
-        {/* <FormField
-          control={form.control}
-          name="transaction.paid"
-          render={({ field: { value, onChange, ...rest } }) => (
-            <FormItem>
-              <FormLabel>Paid Amount</FormLabel>
-              <FormControl>
-                <NumberInput
-                  value={value}
-                  onValueChange={(e) => {
-                    onChange(e);
-                  }}
-                  {...rest}
-                />
-              </FormControl>
-              <FormDescription>The amount that has been paid</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        /> */}
-        {/* <FormField
-          control={form.control}
-          name="transaction.due"
-          render={({ field: { value, onChange, ...rest } }) => (
-            <FormItem>
-              <FormLabel>Due Amount</FormLabel>
-              <FormControl>
-                <NumberInput
-                  value={value}
-                  onValueChange={(e) => onChange(e)}
-                  {...rest}
-                />
-              </FormControl>
-              <FormDescription>The amount that is due</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        /> */}
         <Button type="submit" spinner disabled={isLoading}>
           {orgInfo?.type === "edit"
             ? "Update Organization"

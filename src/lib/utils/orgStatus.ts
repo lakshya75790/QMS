@@ -1,10 +1,10 @@
 /**
- * Organization and license status helper
+ * Organization and subscription status helper
  * 
  * Account Status:
  * - INACTIVE: When explicitly disabled (enabled === false)
  * 
- * License Status:
+ * Subscription Status:
  * - NOT_STARTED: When current date is before serviceStartDate (now < startDate)
  * - EXPIRED: When current date is after serviceEndDate (now > endDate)
  * - ACTIVE: When current date is within the validity window (startDate <= now <= endDate)
@@ -57,7 +57,7 @@ export function getOrgStatus(org: {
     };
   }
 
-  // Expired license (past end date)
+  // Expired subscription (past end date)
   if (now.getTime() > endDate.getTime()) {
     return {
       status: "EXPIRED",
@@ -67,7 +67,7 @@ export function getOrgStatus(org: {
     };
   }
 
-  // Currently active license
+  // Currently active subscription
   return {
     status: "ACTIVE",
     label: "Active",

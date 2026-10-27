@@ -11,6 +11,8 @@ export const getOrgByUserId = async (userId: string) => {
       serviceStartDate: organizations.serviceStartDate,
       serviceEndDate: organizations.serviceEndDate,
       userLimit: organizations.userLimit,
+      plan: organizations.plan,
+      planId: organizations.planId,
       createdAt: organizations.createdAt,
       updatedAt: organizations.updatedAt,
     })

@@ -17,6 +17,8 @@ import { paymentWebhook } from "@/feature/payments/webhooks/server/route";
 import appointmentReasonsTypeRoutes from "@/feature/appointmentReasonType/server/route";
 import { notificationRoutes } from "@/feature/notifications/server/route";
 
+import { subscriptionPlanRoutes } from "@/feature/subscriptionPlan/server/route";
+
 // export const runtime = "edge"
 
 const app = new Hono().basePath("/api/main");
@@ -59,6 +61,7 @@ const routes = app
   .route("/org/transactions", transactionRoutes)
   .route("/org/users", orgUsersRoute)
   .route("/org/subscription", subscriptionRoute)
+  .route("/subscription-plans", subscriptionPlanRoutes)
   .route("/features/appointment-reasons", appointmentReasonsTypeRoutes)
   .route("/payments/appointment", appointmentRoutes)
   .route("/payments/webhook", paymentWebhook)

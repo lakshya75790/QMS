@@ -58,6 +58,21 @@ const userId = text("userId")
   .notNull()
   .references(() => users.id, { onDelete: "cascade" });
 
+export const subscriptionPlans = pgTable("subscription_plans", {
+  ...commonFields,
+  name: text("name").notNull(),
+  description: text("description"),
+  price: numeric("price", { precision: 10, scale: 2 }).notNull(),
+  currency: text("currency").notNull().default("INR"),
+  duration: integer("duration").notNull(),
+  durationUnit: text("duration_unit").notNull().default("DAYS"), // "DAYS" | "MONTHS" | "YEARS"
+  validityDays: integer("validity_days").notNull(),
+  isActive: boolean("is_active").notNull().default(true),
+});
+
+export type InsertSubscriptionPlanT = typeof subscriptionPlans.$inferInsert;
+export type SelectSubscriptionPlanT = typeof subscriptionPlans.$inferSelect;
+
 export const organizations = pgTable("organization", {
   orgEmail: text("email"),
   doctorWebName: text("web_name").notNull().unique(),
@@ -68,6 +83,10 @@ export const organizations = pgTable("organization", {
   enabled: boolean("enabled").notNull().default(true),
   orgType: orgType("org_type").default("HOSPITAL"),
   businessType: text("business_type").notNull().default("individual"),
+  plan: text("plan").default("STANDARD"),
+  planId: text("plan_id").references(() => subscriptionPlans.id, {
+    onDelete: "set null",
+  }),
   ...commonFields,
 });
 

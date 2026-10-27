@@ -23,7 +23,7 @@ const page = async () => {
             Organizations
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Manage registered clinics, doctor practices, license validity, and access settings.
+            Manage registered clinics, doctor practices, subscription plans, and access settings.
           </p>
         </div>
         <div className="flex items-center">

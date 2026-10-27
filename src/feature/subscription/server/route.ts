@@ -1,6 +1,6 @@
 import { db } from "@/lib/db/db";
-import { organizations } from "@/lib/db/schema";
-import { ilike } from "drizzle-orm";
+import { organizations, subscriptionPlans } from "@/lib/db/schema";
+import { eq, ilike } from "drizzle-orm";
 import { Hono } from "hono";
 
 export const subscriptionRoute = new Hono().get("/:webName", async (c) => {
@@ -11,8 +11,15 @@ export const subscriptionRoute = new Hono().get("/:webName", async (c) => {
     .select({
       serviceStartDate: organizations.serviceStartDate,
       serviceEndDate: organizations.serviceEndDate,
+      plan: organizations.plan,
+      planId: organizations.planId,
+      planPrice: subscriptionPlans.price,
+      planCurrency: subscriptionPlans.currency,
+      planDuration: subscriptionPlans.duration,
+      planDurationUnit: subscriptionPlans.durationUnit,
     })
     .from(organizations)
+    .leftJoin(subscriptionPlans, eq(organizations.planId, subscriptionPlans.id))
     .where(ilike(organizations.doctorWebName, webName));
   if (!org) {
     return c.json({ error: "Organization not found" }, 404);

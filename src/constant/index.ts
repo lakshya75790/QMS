@@ -104,3 +104,33 @@ export const gstRegex =
 export const countryArr = ["IN"] as const;
 
 export const strTrueFalse = ["true", "false"] as const;
+
+export const planDurationUnitArr = ["DAYS", "MONTHS", "YEARS"] as const;
+export type PlanDurationUnitT = (typeof planDurationUnitArr)[number];
+
+export function calculateValidityDays(duration: number, unit: PlanDurationUnitT): number {
+  if (unit === "YEARS") return Math.max(1, duration * 365);
+  if (unit === "MONTHS") return Math.max(1, duration * 30);
+  return Math.max(1, duration);
+}
+
+export function formatPlanDuration(duration: number, unit: string): string {
+  const normalizedUnit = unit?.toUpperCase() || "DAYS";
+  if (normalizedUnit === "YEARS") {
+    return duration === 1 ? "1 Year" : `${duration} Years`;
+  }
+  if (normalizedUnit === "MONTHS") {
+    return duration === 1 ? "1 Month" : `${duration} Months`;
+  }
+  return duration === 1 ? "1 Day" : `${duration} Days`;
+}
+
+export function getSubscriptionPlanInfo(plan?: string | null) {
+  const name = plan && plan.trim() ? plan.trim() : "Active Plan";
+  return {
+    name,
+    badgeClass:
+      "border-teal-200 dark:border-teal-900 bg-teal-50 text-teal-700 dark:bg-teal-950/60 dark:text-teal-300",
+  };
+}
+

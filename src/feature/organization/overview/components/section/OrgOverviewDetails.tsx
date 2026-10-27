@@ -15,12 +15,14 @@ import {
   FileText,
   Mail,
   Phone,
-  Users,
+  Sparkles,
 } from "lucide-react";
 import { formatDate } from "@/lib/utils/dateUtils";
 import { LoadingSkeleton } from "../skeleton/OrgOverviewDetailsSkeleton";
 
 import { getOrgStatus } from "@/lib/utils/orgStatus";
+import { formatPlanDuration, getSubscriptionPlanInfo } from "@/constant";
+import { formatCurrency } from "@/lib/utils";
 
 const OrgOverviewDetails = () => {
   const { data, isLoading } = useGetOrgDetailsByWebName();
@@ -41,6 +43,7 @@ const OrgOverviewDetails = () => {
   }
 
   const statusInfo = getOrgStatus(data);
+  const planInfo = getSubscriptionPlanInfo((data as any).plan);
 
   return (
     <Card className="w-full overflow-hidden">
@@ -56,6 +59,12 @@ const OrgOverviewDetails = () => {
             >
               {statusInfo.label}
             </Badge>
+            <Badge
+              variant="outline"
+              className={`text-xs font-semibold ${planInfo.badgeClass}`}
+            >
+              {planInfo.name}
+            </Badge>
             <span className="capitalize">{data.businessType}</span>
           </CardDescription>
         </div>
@@ -70,9 +79,13 @@ const OrgOverviewDetails = () => {
             />
 
             <InfoItem
-              icon={<Users className="h-5 w-5 text-green-500" />}
-              label="User Limit"
-              value={data.userLimit.toString()}
+              icon={<Sparkles className="h-5 w-5 text-teal-500" />}
+              label="Subscription Plan"
+              value={
+                (data as any).planPrice
+                  ? `${planInfo.name} (${formatCurrency((data as any).planPrice)}${(data as any).planDurationValue ? ` / ${formatPlanDuration((data as any).planDurationValue, (data as any).planDurationUnit)}` : ""})`
+                  : `${planInfo.name} (Unlimited Staff)`
+              }
             />
 
             <InfoItem

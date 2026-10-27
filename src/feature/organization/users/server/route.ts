@@ -49,11 +49,12 @@ export const orgUsersRoute = new Hono()
         return c.json({ error: "Invalid phone number format" }, 400);
       }
 
-      // Fetch organization details along with current user count
+      // Fetch organization details
       const [orgWithUserCount] = await db
         .select({
           id: organizations.id,
           userLimit: organizations.userLimit,
+          plan: organizations.plan,
           userCount: count(organizationUsers.userId),
         })
         .from(organizations)
@@ -69,16 +70,8 @@ export const orgUsersRoute = new Hono()
         return c.json({ error: "Organization not found" }, 404);
       }
 
-      // Enforce user limit for the organization
-      if (orgWithUserCount.userCount >= orgWithUserCount.userLimit) {
-        return c.json(
-          {
-            error:
-              "User limit reached for this organization. Please contact the administrator.",
-          },
-          403,
-        );
-      }
+      // QMS (MediScan) operates on a plan-based subscription model with unlimited staff users.
+      // User creation, activation, and management are not restricted by license quotas.
 
       // Fetch current user's role and organization access
       const [currentUser] = await db

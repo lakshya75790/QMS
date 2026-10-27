@@ -35,6 +35,7 @@ const getData = async (rawOrgName: string) => {
         orgType: organizations.orgType,
         serviceEndDate: organizations.serviceEndDate,
         userLimit: organizations.userLimit,
+        plan: organizations.plan,
         name: users.name,
         phone: users.phone,
         orgEmail: organizations.orgEmail,
