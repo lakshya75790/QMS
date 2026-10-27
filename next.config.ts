@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
-  output: "standalone",
+  output: process.platform === "win32" && !process.env.BUILD_STANDALONE ? undefined : "standalone",
   outputFileTracingRoot: path.join(__dirname),
   images: {
     remotePatterns: [

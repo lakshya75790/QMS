@@ -29,7 +29,7 @@ import {
 import { useSubscriptionPlanDialog } from "../../hooks/useSubscriptionPlanDialog";
 import { useCreateSubscriptionPlan } from "../../hooks/useCreateSubscriptionPlan";
 import { useUpdateSubscriptionPlan } from "../../hooks/useUpdateSubscriptionPlan";
-import { calculateValidityDays, formatPlanDuration, planDurationUnitArr } from "@/constant";
+import { calculateValidityDays, formatPlanDuration, planDurationUnitArr, PlanDurationUnitT } from "@/constant";
 import { Sparkles, Calendar, Tag, FileText } from "lucide-react";
 
 export default function AddEditSubscriptionPlanForm() {
@@ -61,7 +61,7 @@ export default function AddEditSubscriptionPlanForm() {
         price: Number(plan.price) || 0,
         currency: plan.currency || "INR",
         duration: plan.duration || 1,
-        durationUnit: (plan.durationUnit as any) || "MONTHS",
+        durationUnit: (plan.durationUnit as PlanDurationUnitT) || "MONTHS",
         isActive: plan.isActive,
       });
     } else {
@@ -78,8 +78,8 @@ export default function AddEditSubscriptionPlanForm() {
   }, [isEdit, plan, form]);
 
   const watchedDuration = form.watch("duration") || 1;
-  const watchedUnit = form.watch("durationUnit") || "MONTHS";
-  const calculatedDays = calculateValidityDays(watchedDuration, watchedUnit as any);
+  const watchedUnit = (form.watch("durationUnit") || "MONTHS") as PlanDurationUnitT;
+  const calculatedDays = calculateValidityDays(watchedDuration, watchedUnit);
   const formattedDuration = formatPlanDuration(watchedDuration, watchedUnit);
 
   const isLoading =

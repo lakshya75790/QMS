@@ -15,7 +15,6 @@ import {
 import {
   Plus,
   Search,
-  Sparkles,
   X,
   SlidersHorizontal,
   PackageOpen,
@@ -68,7 +67,7 @@ export default function SubscriptionPlansSection() {
 
           <Select
             value={statusFilter}
-            onValueChange={(val: any) => setStatusFilter(val)}
+            onValueChange={(val) => setStatusFilter(val as "all" | "active" | "inactive")}
           >
             <SelectTrigger className="w-full sm:w-[140px] h-10 rounded-xl bg-slate-50/50 dark:bg-slate-900/50 text-xs font-medium">
               <SelectValue placeholder="All Status" />

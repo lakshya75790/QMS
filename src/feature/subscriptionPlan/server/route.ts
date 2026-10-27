@@ -1,5 +1,5 @@
 import { currentUser } from "@/action/currentUser";
-import { calculateValidityDays } from "@/constant";
+import { calculateValidityDays, PlanDurationUnitT } from "@/constant";
 import { db } from "@/lib/db/db";
 import { organizations, subscriptionPlans, users } from "@/lib/db/schema";
 import { formatError } from "@/lib/utils/stringUtils";
@@ -213,7 +213,7 @@ export const subscriptionPlanRoutes = new Hono()
       }
 
       const duration = body.duration ?? existingPlan.duration;
-      const durationUnit = body.durationUnit ?? (existingPlan.durationUnit as any);
+      const durationUnit = body.durationUnit ?? (existingPlan.durationUnit as PlanDurationUnitT);
       const validityDays = calculateValidityDays(duration, durationUnit);
 
       const [updatedPlan] = await db

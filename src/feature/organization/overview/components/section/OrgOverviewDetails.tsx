@@ -43,7 +43,7 @@ const OrgOverviewDetails = () => {
   }
 
   const statusInfo = getOrgStatus(data);
-  const planInfo = getSubscriptionPlanInfo((data as any).plan);
+  const planInfo = getSubscriptionPlanInfo(data.plan);
 
   return (
     <Card className="w-full overflow-hidden">
@@ -82,8 +82,8 @@ const OrgOverviewDetails = () => {
               icon={<Sparkles className="h-5 w-5 text-teal-500" />}
               label="Subscription Plan"
               value={
-                (data as any).planPrice
-                  ? `${planInfo.name} (${formatCurrency((data as any).planPrice)}${(data as any).planDurationValue ? ` / ${formatPlanDuration((data as any).planDurationValue, (data as any).planDurationUnit)}` : ""})`
+                data.planPrice
+                  ? `${planInfo.name} (${formatCurrency(data.planPrice)}${data.planDuration ? ` / ${formatPlanDuration(data.planDuration, data.planDurationUnit || "MONTHS")}` : ""})`
                   : `${planInfo.name} (Unlimited Staff)`
               }
             />

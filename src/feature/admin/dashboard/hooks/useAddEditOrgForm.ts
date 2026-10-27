@@ -43,8 +43,8 @@ const useAddEditOrgForm = () => {
         description: orgInfo?.orgInfo?.description || "",
         orgType: orgInfo?.orgInfo?.orgType || "HOSPITAL",
         phone: orgInfo.orgInfo.phone || "+91",
-        planId: (orgInfo.orgInfo as any)?.planId || "",
-        plan: (orgInfo.orgInfo.plan as any) || "",
+        planId: orgInfo.orgInfo.planId || "",
+        plan: orgInfo.orgInfo.plan || "",
         userLimit: 0,
         orgEmail: orgInfo.orgInfo.orgEmail || "",
         businessType: (orgInfo.orgInfo.businessType ||

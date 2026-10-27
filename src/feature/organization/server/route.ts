@@ -231,11 +231,19 @@ const organizationRoutes = new Hono()
           return c.json({ error: "Organization not found" }, 404);
         }
 
-        // Remove undefined values from body
-        const filteredBody = Object.fromEntries(
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          Object.entries(body).filter(([_, value]) => value !== undefined),
-        ) as any;
+        // Filter organization fields from body
+        const filteredBody: Partial<typeof organizations.$inferInsert> = {
+          ...(body.orgEmail !== undefined ? { orgEmail: body.orgEmail } : {}),
+          ...(body.description !== undefined ? { description: body.description } : {}),
+          ...(body.serviceStartDate !== undefined ? { serviceStartDate: body.serviceStartDate } : {}),
+          ...(body.serviceEndDate !== undefined ? { serviceEndDate: body.serviceEndDate } : {}),
+          ...(body.userLimit !== undefined ? { userLimit: body.userLimit } : {}),
+          ...(body.enabled !== undefined ? { enabled: body.enabled } : {}),
+          ...(body.orgType !== undefined ? { orgType: body.orgType } : {}),
+          ...(body.businessType !== undefined ? { businessType: body.businessType } : {}),
+          ...(body.plan !== undefined ? { plan: body.plan } : {}),
+          ...(body.planId !== undefined ? { planId: body.planId } : {}),
+        };
 
         // If plan is updated, validate and recalculate
         if (body.planId) {
